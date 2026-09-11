@@ -1,0 +1,2157 @@
+{
+  "$schema_version": "1.0",
+  "id": "pitch-pet-lessons-L3-L4",
+  "task": "D-04",
+  "authored_by": "Doc",
+  "authored_utc": "2026-09-11T10:40:00Z",
+  "license": "MIT. All musical content referenced here is public domain (pre-1929 / traditional) or original to Pitch Pet.",
+  "consumes": [
+    "pitch-pet-content-pools-v1.json"
+  ],
+  "consumed_by": [
+    "B-07 lesson runner",
+    "B-08 SING exercise"
+  ],
+  "notes": "Levels 3 and 4. Same schema as pitch-pet-lessons-L1-L2-v1.json - the runner needs no new code paths to execute this file. Levels 1-4 are the NEVER-CUT slice per PITCH-PET-AUTONOMY.md; with this file, content for the entire never-cut slice is complete and the critical path is code only.",
+  "runner_contract_ref": "pitch-pet-lessons-L1-L2-v1.json#runner_contract - authoritative. Read it there, not here.",
+  "runner_contract_delta": {
+    "new_generators_used": {
+      "G-02": "scale.generate - L4 needs a random tonic across all 12, sharps and flats both.",
+      "G-04": "chord.generate - used once, L4.3.3, to sound the harmonic context that creates a tendency tone.",
+      "G-05": "progression.generate - used for cadential context in L4.3.3 and RECITAL-4.",
+      "G-07": "dictation.generate - rhythmic dictation, L3.4.2 and RECITAL-3.",
+      "G-09": "analysis.generate - key identification from a signature, L4.4.2/L4.4.3."
+    },
+    "timing_measurement": {
+      "owner": "local DSP",
+      "metric": "onset deviation in milliseconds against the generated grid",
+      "bands_ms": {
+        "tight": 60,
+        "good": 100,
+        "loose": 160,
+        "off": 161
+      },
+      "note": "Rhythm is the DSP's job end to end. AssemblyAI is never asked when a tap landed. This is asr_contract rule_5 applied to Level 3."
+    },
+    "counting_aloud_is_new": "L3.2.2-E4 and L3.2.3 send SPOKEN COUNTING to AssemblyAI ('one two three four', 'one e and a'). This is a genuinely unusual use of STT - transcribing a metric count as a rhythm check - and it is the strongest single 'Application of Technology' beat in Levels 3-4. Spoken digits are AAI's native domain, so it carries none of the sung-audio risk from the B-04 gate.",
+    "mastery_bands_used_here": {
+      "unlock_next_unit": 3,
+      "recital_eligible": 4
+    }
+  },
+  "levels": [
+    {
+      "level": 3,
+      "name": "Rhythm I",
+      "goal": "From 'I can keep a beat' to reading a bar of music off the page and performing it.",
+      "unlocks_at": "RECITAL-2 passed",
+      "units": [
+        {
+          "unit": "3.1",
+          "name": "Note Values & Rests",
+          "lessons": [
+            {
+              "id": "L3.1.1",
+              "title": "Note Values",
+              "concept": "concept.note_values",
+              "doors": {
+                "primary": "Whole note four beats, half two, quarter one, eighth a half, sixteenth a quarter. Each one is the one above it, cut in two.",
+                "analogy": "A pizza. One whole, or two halves, or four quarters. Same pizza, different number of cuts. Nobody ever got more pizza by slicing it smaller.",
+                "contrast": "These are not seconds. A quarter note is not 'one second' - it is one BEAT. At 60 beats a minute it happens to last a second; at 120 it lasts half of one. The value tells you the share, the tempo tells you the size."
+              },
+              "tutor_lines": [
+                "Everything in rhythm is halving. If you can cut something in two, you already know the whole system.",
+                "Here is the part people trip on: a whole note is not 'a long time'. It is four beats. If the beat is fast, a whole note is quick.",
+                "Say the shares out loud with me. One. Two halves. Four quarters. It is arithmetic you did in grade three."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.1.1-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "show": "single note value glyph",
+                    "ask": "how many beats in 4/4?",
+                    "value_set": ["whole", "half", "quarter", "eighth", "sixteenth"],
+                    "rounds": 8
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 7
+                  }
+                },
+                {
+                  "id": "L3.1.1-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "rhythm_pool_ids": ["R-01", "R-02", "R-03"],
+                    "bpm": 72,
+                    "count_in_bars": 1,
+                    "repeats_per_pattern": 2
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 160,
+                    "fraction": 0.75,
+                    "note": "Loose band on first contact with notation. Tighten in 3.4, not here."
+                  }
+                },
+                {
+                  "id": "L3.1.1-E3",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "build one bar of 4/4 from a tray of note values",
+                    "validate": "sum_of_values == 4",
+                    "many_valid_answers": true,
+                    "rounds": 4
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 4,
+                    "need": 3,
+                    "note": "The generator validates the SUM, never one memorised layout. A learner who writes four quarters and a learner who writes one whole note are both right and must both be told so."
+                  }
+                },
+                {
+                  "id": "L3.1.1-E4",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "A friend says a quarter note lasts one second. Are they right? Say why or why not, out loud, in your own words."
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "identifies that duration depends on tempo",
+                      "states the quarter note is one BEAT, not one second",
+                      "does not need the word 'tempo' - 'how fast the song is' counts"
+                    ],
+                    "need": 2,
+                    "of": 3
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "answers in seconds, or asks 'how long is that in time'",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "cannot rank the values in order",
+                  "route_to_door": "analogy"
+                }
+              ]
+            },
+            {
+              "id": "L3.1.2",
+              "title": "Rests",
+              "concept": "concept.rests",
+              "doors": {
+                "primary": "Silence is written down too. Every note value has a matching rest of exactly the same length.",
+                "analogy": "The pauses in speech. When you say 'wait... what?' the pause is doing work. Take it out and the sentence means something else.",
+                "contrast": "A rest is not a break. You are still counting through it. The music does not stop at a rest - only the sound does."
+              },
+              "tutor_lines": [
+                "A rest is the hardest thing in Level 3, and it looks like the easiest. You have to stay busy while making no noise.",
+                "Count through it out loud the first few times. Out loud is allowed. Out loud is how everyone learns this.",
+                "If you came in early after that rest, you did not count it - you waited for it to feel over. Feelings run fast when you are nervous."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.1.2-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "show": "rest glyph",
+                    "ask": "how many beats of silence?",
+                    "value_set": ["whole", "half", "quarter", "eighth"],
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L3.1.2-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "bars": 2,
+                    "meter": "4/4",
+                    "bpm": 72,
+                    "rest_density": 0.3,
+                    "count_in_bars": 1
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 160,
+                    "fraction": 0.75,
+                    "no_tap_during_rest": true,
+                    "note": "A tap inside a rest window is the failure this exercise exists to catch. Score it separately from timing so the feedback can say WHICH thing slipped."
+                  }
+                },
+                {
+                  "id": "L3.1.2-E3",
+                  "modality": "SAY",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "count the bar aloud, saying 'rest' on every silent beat",
+                    "bars": 2,
+                    "meter": "4/4",
+                    "bpm": 66,
+                    "example_expected": "one two rest four one rest three four"
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["one", "two", "three", "four", "rest"],
+                    "note": "One utterance, one upload. asr_contract rule_1. Spoken digits - AAI's native domain, no sung-audio risk."
+                  },
+                  "pass": {
+                    "sequence_correct": true,
+                    "allow_transcript_normalisation": ["1", "2", "3", "4"],
+                    "note": "AAI may return digits or words. Normalise both ways before comparing."
+                  }
+                },
+                {
+                  "id": "L3.1.2-E4",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "replace the highlighted note with the rest of equal value",
+                    "rounds": 5
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 5,
+                    "need": 4
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "taps through rests",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "enters early after a rest longer than one beat",
+                  "route_to_door": "primary",
+                  "also": "drop bpm one notch and re-run L3.1.2-E3 with counting aloud before returning to tapping"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "3.2",
+          "name": "Meter & Measures",
+          "lessons": [
+            {
+              "id": "L3.2.1",
+              "title": "Bar Lines & Measures",
+              "concept": "concept.measures",
+              "doors": {
+                "primary": "Bar lines chop the stream of beats into equal groups called measures, or bars.",
+                "analogy": "Spaces between words. 'THEBEATGOESON' has all the letters and none of the readability. Bar lines put the spaces in.",
+                "contrast": "Bar lines do not create the strong beats. You already felt the grouping before anyone wrote a line. The line is a record of the feeling, not the cause of it."
+              },
+              "tutor_lines": [
+                "You have been grouping beats since you were a toddler bouncing to music. Notation is just catching up to you.",
+                "Tap along to anything and you will naturally lean on one beat out of every three or four. That lean is where the bar line goes.",
+                "Same notes, different bar lines, different tune. That is how much the grouping matters."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.2.1-E1",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "tap every beat, accent the first of each group",
+                    "meters": ["4/4", "3/4"],
+                    "bars": 4,
+                    "bpm": 80
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 160,
+                    "fraction": 0.75,
+                    "accent_on_downbeat_fraction": 0.6,
+                    "note": "Accent is measured as tap velocity or duration, whichever the input device gives. If neither is available, skip the accent criterion rather than guessing - do not fail a learner on a measurement we cannot take."
+                  }
+                },
+                {
+                  "id": "L3.2.1-E2",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "insert bar lines into an unbarred stream of note values",
+                    "meter": "4/4",
+                    "bars": 4,
+                    "rounds": 3
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 3,
+                    "need": 2
+                  }
+                },
+                {
+                  "id": "L3.2.1-E3",
+                  "modality": "ID",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "listen and say how many beats are in each group",
+                    "meters": ["4/4", "3/4"],
+                    "rounds": 6,
+                    "audio_only": true
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "believes the bar line makes the beat strong",
+                  "route_to_door": "contrast"
+                }
+              ]
+            },
+            {
+              "id": "L3.2.2",
+              "title": "Time Signatures",
+              "concept": "concept.time_signature",
+              "doors": {
+                "primary": "Two numbers at the start. The top says how many beats fill a bar. The bottom says which note value gets one beat.",
+                "analogy": "A recipe line: how many, and of what size. 'Four quarters' the same way you would say 'four eggs, large'.",
+                "contrast": "4/4 and 2/4 are not the same thing with different bookkeeping. In 4/4 you lean on beats one and three; in 2/4 you lean on every other beat. The grouping changes what the music feels like."
+              },
+              "tutor_lines": [
+                "The bottom number is the one that confuses everybody, so here it is plainly: 4 means a quarter note, 8 means an eighth note. It is naming a fraction of a whole note.",
+                "Three four is a waltz. Four four is nearly everything on the radio. Six eight is a jig or a lullaby - it lilts.",
+                "Now I want you to count out loud over a bar. Yes, out loud. I am going to listen."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.2.2-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "show": "time signature",
+                    "ask": "how many beats per bar, and which value gets the beat?",
+                    "signatures": ["4/4", "3/4", "2/4", "6/8"],
+                    "rounds": 8
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L3.2.2-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "rhythm_pool_ids": ["R-06", "R-07", "R-10"],
+                    "bpm": 76,
+                    "count_in_bars": 1,
+                    "note": "R-06 and R-07 are 3/4, R-10 is 6/8. First exposure to a meter that is not four."
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 140,
+                    "fraction": 0.75
+                  }
+                },
+                {
+                  "id": "L3.2.2-E3",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "the bar lines are drawn - write the time signature that fits",
+                    "rounds": 4
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 4,
+                    "need": 3
+                  }
+                },
+                {
+                  "id": "L3.2.2-E4",
+                  "modality": "SAY",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "count aloud in time while the pet plays four bars",
+                    "meters": ["4/4", "3/4"],
+                    "bars": 4,
+                    "bpm": 70,
+                    "expected_4_4": "one two three four one two three four one two three four one two three four",
+                    "expected_3_4": "one two three one two three one two three one two three"
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["one", "two", "three", "four"],
+                    "note": "Streaming so the count can be shown landing on screen in real time. The transcript gives the SEQUENCE; the DSP gives the TIMING of each spoken onset. asr_contract rule_5 - do not ask AAI whether a count was late."
+                  },
+                  "pass": {
+                    "sequence_correct": true,
+                    "onset_within_ms": 200,
+                    "fraction": 0.7,
+                    "note": "STAR EXERCISE. This is the clearest 'we used speech recognition for something nobody else thought of' moment in Levels 3-4. B-13 should consider filming it as the second beat after RECITAL-2."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "reads the bottom number as a count",
+                  "route_to_door": "primary"
+                },
+                {
+                  "symptom": "counts 4 in a 3/4 bar",
+                  "route_to_door": "analogy",
+                  "also": "re-run E2 on R-06 alone at 60 bpm"
+                }
+              ]
+            },
+            {
+              "id": "L3.2.3",
+              "title": "Counting Systems",
+              "concept": "concept.counting_systems",
+              "doors": {
+                "primary": "Three common ways to count: numbers (1 2 3 4), subdivided numbers (1 e and a), and Kodaly syllables (ta, ti-ti).",
+                "analogy": "Three sets of directions to the same house. Left at the church, or north two blocks, or follow the blue line. All arrive.",
+                "contrast": "There is no correct system. There is only the system you stay consistent with inside one piece. Switching mid-bar is the actual mistake."
+              },
+              "tutor_lines": [
+                "Pick one. Any one. Teachers will argue about this for the rest of your life and it will never once matter to how you sound.",
+                "Subdivided counting is the one that rescues you when the rhythm gets fast. 'One e and a' gives you four places to land instead of one.",
+                "Ta and ti-ti are for when you want your mouth free of numbers - handy when you are also reading pitch."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.2.3-E1",
+                  "modality": "SAY",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "count one bar of eighth notes using the 'and' system",
+                    "bars": 2,
+                    "bpm": 60,
+                    "expected": "one and two and three and four and one and two and three and four and"
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["one", "and", "two", "three", "four", "e", "a"]
+                  },
+                  "pass": {
+                    "sequence_correct": true,
+                    "allow_transcript_normalisation": ["&", "+", "an"]
+                  }
+                },
+                {
+                  "id": "L3.2.3-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "rhythm_pool_ids": ["R-04", "R-05", "R-08"],
+                    "bpm": 72,
+                    "show_counting_overlay": "learner's chosen system"
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 140,
+                    "fraction": 0.75
+                  }
+                },
+                {
+                  "id": "L3.2.3-E3",
+                  "modality": "REFLECT",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "Which counting system felt most natural to you, and when did you notice yourself losing the beat?"
+                  },
+                  "aai": "sentiment",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "answered": true,
+                    "note": "Never gates progress. Sentiment only routes how warm the pet's next line is, and writes learner.preferred_counting_system for every later rhythm exercise to display."
+                  },
+                  "writes": "learner.preferred_counting_system"
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "asks which system is correct",
+                  "route_to_door": "contrast"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "3.3",
+          "name": "Dots & Ties",
+          "lessons": [
+            {
+              "id": "L3.3.1",
+              "title": "Dotted Notes",
+              "concept": "concept.dotted_notes",
+              "doors": {
+                "primary": "A dot after a note adds half of that note's value again. A dotted half is 2 plus 1, so 3 beats.",
+                "analogy": "Ordering a coffee and a half. Not two coffees. One and a half.",
+                "contrast": "A dot AFTER the note makes it longer. A dot ABOVE the note means staccato - short. Same symbol, opposite meaning, decided entirely by where it sits."
+              },
+              "tutor_lines": [
+                "Half again. That is the whole rule. Dotted quarter is one and a half, dotted half is three, dotted whole is six.",
+                "Now the trap, and you will meet it in real music this week: a dot above the notehead is a completely different instruction. Position is everything.",
+                "Dotted rhythms are why a march sounds like a march. Take the dots out and it goes flat on its face."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.3.1-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "show": "dotted note glyph",
+                    "ask": "how many beats?",
+                    "value_set": ["dotted whole", "dotted half", "dotted quarter", "dotted eighth"],
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L3.3.1-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "rhythm_pool_ids": ["R-08"],
+                    "bpm": 72,
+                    "repeats": 3,
+                    "note": "R-08 'Dotted Skip' is the pool's dotted pattern: 1.5, 0.5, 1, 1."
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 140,
+                    "fraction": 0.75
+                  }
+                },
+                {
+                  "id": "L3.3.1-E3",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "You see a dot near a note. How do you know whether it means longer or shorter?"
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "distinguishes by POSITION (after vs above/below)",
+                      "states 'after' means add half the value",
+                      "states 'above' means short/staccato"
+                    ],
+                    "need": 2,
+                    "of": 3,
+                    "note": "The first bullet is the one that matters. A learner who says 'after means longer, above means short' without the arithmetic has the concept and should pass."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "adds a full value instead of half",
+                  "route_to_door": "analogy"
+                },
+                {
+                  "symptom": "confuses dot with staccato",
+                  "route_to_door": "contrast"
+                }
+              ]
+            },
+            {
+              "id": "L3.3.2",
+              "title": "Ties",
+              "concept": "concept.ties",
+              "doors": {
+                "primary": "A tie is a curved line joining two notes of the SAME pitch. You play or sing one sound, lasting for both values added together.",
+                "analogy": "Taping two straws end to end. One straw now, longer.",
+                "contrast": "A slur looks almost identical but joins DIFFERENT pitches, and means play them smoothly - you still sound both notes. Tie: same pitch, one sound. Slur: different pitches, joined smoothly."
+              },
+              "tutor_lines": [
+                "Ties exist because a bar line cannot be crossed by a single notehead. If a sound needs to last past the bar line, you tie across it.",
+                "Same pitch, one sound. Say that back to yourself when you are looking at a curve and cannot tell which it is.",
+                "Look at where the curve ENDS. If it lands on a different line or space, it is a slur."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.3.2-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "show": "two joined notes",
+                    "ask": "tie or slur?",
+                    "rounds": 8,
+                    "mix": "half tie, half slur"
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 7
+                  }
+                },
+                {
+                  "id": "L3.3.2-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "tap only the attacks - do not re-tap a tied note",
+                    "bars": 4,
+                    "meter": "4/4",
+                    "tie_density": 0.25,
+                    "bpm": 72
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 140,
+                    "fraction": 0.75,
+                    "no_tap_on_tied_continuation": true
+                  }
+                },
+                {
+                  "id": "L3.3.2-E3",
+                  "modality": "SING",
+                  "generator": "G-06",
+                  "params": {
+                    "melody_pool_ids": ["M-L2-03", "M-L3-01"],
+                    "apply": "tie the final two beats",
+                    "vowel": "solfege syllables",
+                    "key_from": "learner.range"
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "note": "M-L2-03 is 4 syllables, M-L3-01 is 5. Both satisfy asr_contract rule_3. Tying the last two beats does NOT reduce the syllable count - the tie extends a sustained sound, it does not delete a syllable."
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "pitch_within_cents": 50,
+                    "fraction": 0.7,
+                    "final_note_held_beats_min": 2
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "re-articulates the tied note",
+                  "route_to_door": "analogy"
+                },
+                {
+                  "symptom": "calls a slur a tie",
+                  "route_to_door": "contrast"
+                }
+              ]
+            },
+            {
+              "id": "L3.3.3",
+              "title": "Pickup Notes",
+              "concept": "concept.anacrusis",
+              "doors": {
+                "primary": "A pickup - an anacrusis - is a partial bar before the first full bar. The song starts before beat one.",
+                "analogy": "The run-up before a long jump. The jump is the downbeat; the run-up is not wasted, it is what makes the jump work.",
+                "contrast": "It is not a bar with beats missing. Count the last bar of the piece - it is usually short by exactly the same amount. The two ends add up to one whole bar."
+              },
+              "tutor_lines": [
+                "Happy Birthday starts on a pickup. So does the Star-Spangled Banner. You have been singing anacruses your entire life without a name for them.",
+                "The trick is counting the silent beats before you come in. One, two, three - HAPpy. Count them, do not guess them.",
+                "If you keep coming in early, you are feeling the pickup as beat one. It is not. It is the last beat of a bar that never happened."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.3.3-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "show": "first bar of a generated piece",
+                    "ask": "does this start with a pickup? how many beats is it?",
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L3.3.3-E2",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "count in silently, come in on the pickup",
+                    "pickup_beats": [1, 2],
+                    "bars": 4,
+                    "bpm": 72,
+                    "count_in_bars": 1
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "first_onset_within_ms": 140,
+                    "onset_within_ms": 140,
+                    "fraction": 0.75,
+                    "note": "Score the FIRST onset separately and report it separately. Entering late or early on a pickup is the specific skill here; a learner can nail the rest of the bar and still have missed the point."
+                  }
+                },
+                {
+                  "id": "L3.3.3-E3",
+                  "modality": "SING",
+                  "generator": "G-06",
+                  "params": {
+                    "anchor_song_id": "A-M3-dn",
+                    "task": "sing the opening of The Star-Spangled Banner and identify where beat one lands",
+                    "note": "Public domain. Melody c.1773. The 'Oh' is the pickup; 'say' is beat one.",
+                    "vowel": "solfege syllables",
+                    "extend_to_min_syllables": 4
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "note": "A-M3-dn's stored solfege is 3 syllables (sol mi do). Per the D-J precedent, the pet sings a leading 'sol' pickup WITH the learner so the uploaded blob is 4+ syllables. The pickup is stripped from SCORING, never from the UPLOAD."
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "identified_downbeat": true
+                  }
+                },
+                {
+                  "id": "L3.3.3-E4",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "The first bar of this song only has one beat in it. Is the music broken? Explain what is going on."
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "recognises it as a pickup / partial bar, not an error",
+                      "connects it to the music starting before beat one",
+                      "bonus: mentions the last bar completing it"
+                    ],
+                    "need": 2,
+                    "of": 3
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "comes in on beat one instead of the pickup",
+                  "route_to_door": "analogy"
+                },
+                {
+                  "symptom": "says the bar is wrong / missing beats",
+                  "route_to_door": "contrast"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "3.4",
+          "name": "Rhythm Reading",
+          "note": "Nothing new is taught here. This unit is where the five previous lessons stop being separate facts and become one skill: look at a bar, perform it, no stopping.",
+          "lessons": [
+            {
+              "id": "L3.4.1",
+              "title": "Reading Eight Bars",
+              "concept": "concept.rhythm_reading",
+              "doors": {
+                "primary": "Read ahead. Your eyes should always be one bar in front of your hands.",
+                "analogy": "Driving. You do not stare at the bumper in front of you, you look down the road. Same reflex, learned the same way - badly at first, then automatically.",
+                "contrast": "Stopping to work out a bar is not careful, it is fatal. A wrong note in time is more musical than a right note that arrives late. Keep going."
+              },
+              "tutor_lines": [
+                "Scan the whole eight bars before you start. Find the hardest bar. Now you know where to spend your attention.",
+                "If you slip, do not go back. Find the next downbeat and land on it. Recovery is a skill and I am going to score you on it.",
+                "Read ahead. It will feel impossible for about four days and then it will feel like nothing."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.4.1-E1",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "bars": 8,
+                    "meter": "4/4",
+                    "bpm": 76,
+                    "syncopation_density": "adaptive from learner.rhythm_mastery",
+                    "unseen": true,
+                    "count_in_bars": 1
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 120,
+                    "fraction": 0.75,
+                    "recovery_scored": true,
+                    "note": "Recovery = after any onset outside the loose band, did the next downbeat land inside the good band? Report it. Do not deduct for the slip if the recovery is clean."
+                  }
+                },
+                {
+                  "id": "L3.4.1-E2",
+                  "modality": "SING",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "sing the same rhythm on one pitch, then on a melody",
+                    "bars": 8,
+                    "single_pitch_from": "learner.range comfortable centre",
+                    "then_melody_pool_ids": ["M-L3-01", "M-L3-02", "M-L3-03", "M-L3-05"],
+                    "vowel": "solfege syllables"
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "max_syllables": 12,
+                    "note": "M-L3-05 is 7 syllables, the longest used here. All four are inside asr_contract rules 3 and 4. Send the whole 8 bars as ONE blob - do not upload per bar."
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "onset_within_ms": 160,
+                    "fraction": 0.7,
+                    "note": "Rhythm band is deliberately looser when singing than when tapping. Producing pitch costs attention; charging the learner twice for it is bad teaching."
+                  }
+                },
+                {
+                  "id": "L3.4.1-E3",
+                  "modality": "TAP",
+                  "generator": "G-03",
+                  "params": {
+                    "task": "same eight bars, one notch faster",
+                    "bpm_delta": 8,
+                    "reuse_pattern_from": "L3.4.1-E1"
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 140,
+                    "fraction": 0.7
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "stops mid-piece to decode a bar",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "accurate but consistently behind the beat",
+                  "route_to_door": "primary",
+                  "also": "drop bpm 8 and re-run; lag usually means reading note-by-note"
+                }
+              ]
+            },
+            {
+              "id": "L3.4.2",
+              "title": "Rhythmic Dictation",
+              "concept": "concept.rhythmic_dictation",
+              "doors": {
+                "primary": "Hear it, clap it back, then write it down. Ear to hand to page.",
+                "analogy": "Taking down a phone number someone says out loud. You repeat it back first, then write it. The repeating back is not showing off - it is how you hold it.",
+                "contrast": "Do not try to write it on the first hearing. Get it into your body first. Notation is the last step, not the first."
+              },
+              "tutor_lines": [
+                "Clap it back before you write anything. Every good musician does this and nobody admits it.",
+                "Count the bar length first. Then find the downbeats. Then fill in between them. Outside in, never left to right.",
+                "You are allowed to hear it as many times as you like. There is no version of this where rationing is the lesson."
+              ],
+              "exercises": [
+                {
+                  "id": "L3.4.2-E1",
+                  "modality": "ECHO",
+                  "generator": "G-07",
+                  "params": {
+                    "mode": "rhythmic",
+                    "bars": 2,
+                    "meter": "4/4",
+                    "bpm": 72,
+                    "replays_allowed": "unlimited",
+                    "rounds": 4
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "onset_within_ms": 160,
+                    "fraction": 0.75,
+                    "rounds_passed": 3,
+                    "of": 4
+                  }
+                },
+                {
+                  "id": "L3.4.2-E2",
+                  "modality": "NOTATE",
+                  "generator": "G-07",
+                  "params": {
+                    "mode": "rhythmic",
+                    "task": "write down what you just clapped back",
+                    "bars": 2,
+                    "validate": "durational sequence equality, not glyph choice",
+                    "rounds": 4
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 4,
+                    "need": 3,
+                    "note": "Two tied quarters and one half note are the same rhythm. Both are correct. Validate the SOUND, not the spelling."
+                  }
+                },
+                {
+                  "id": "L3.4.2-E3",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "Talk me through how you worked that rhythm out. What did you find first?"
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "describes a strategy rather than 'I just knew'",
+                      "mentions finding the beat or the downbeats before the details"
+                    ],
+                    "need": 1,
+                    "of": 2,
+                    "note": "Low bar on purpose. This is metacognition practice, not an exam. Any articulated strategy passes."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "writes before clapping back",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "left-to-right decoding, loses the bar length",
+                  "route_to_door": "primary"
+                }
+              ]
+            }
+          ],
+          "recital": {
+            "id": "RECITAL-3",
+            "title": "Keeping Time",
+            "unlocks_at_mastery_band": 4,
+            "task": "Three parts, unseen and pool-drawn, different every attempt. 1) Tap an 8-bar rhythm you have never seen. 2) Sing the same rhythm on a single pitch. 3) Notate a 4-bar rhythm the pet claps for you.",
+            "rhythm_pool_ids": ["R-04", "R-05", "R-06", "R-07", "R-08", "R-09", "R-10"],
+            "generator": "G-03 for parts 1-2, G-07 for part 3",
+            "bpm": 76,
+            "aai": "streaming_stt",
+            "asr": {
+              "whole_phrase": true,
+              "note": "Part 2 only. One continuous blob for all 8 bars, sung on a neutral vowel or a single solfege syllable. asr_contract rule_1. Parts 1 and 3 make no AAI call at all - they are pure DSP and notation."
+            },
+            "rubric": [
+              {
+                "criterion": "timing accuracy",
+                "scale": 5,
+                "measured_by": "DSP, fraction of onsets within 120ms of the grid"
+              },
+              {
+                "criterion": "rest discipline",
+                "scale": 5,
+                "measured_by": "DSP, no attack inside a rest window"
+              },
+              {
+                "criterion": "notation accuracy",
+                "scale": 5,
+                "measured_by": "durational sequence equality on part 3"
+              },
+              {
+                "criterion": "recovery",
+                "scale": 5,
+                "measured_by": "after any slip, did the next downbeat land clean? Award 5 if there was nothing to recover from."
+              }
+            ],
+            "pass": {
+              "all_criteria_min": 3
+            },
+            "on_pass": {
+              "xp": 300,
+              "pet_event": "rhythm_badge",
+              "tutor_line": "You just read music you had never seen and performed it in time. That is not a beginner thing. That is the thing beginners think they will never be able to do."
+            },
+            "on_miss": {
+              "never_say": ["failed", "try again"],
+              "do": "The pet performs the rhythm WITH the learner, one notch slower, then steps out halfway through and lets them finish alone. Retry is free and unlimited."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "level": 4,
+      "name": "The Major Scale & Keys",
+      "goal": "From 'C major is the white keys' to building a major scale on any note and naming any key from its signature.",
+      "unlocks_at": "RECITAL-3 passed",
+      "units": [
+        {
+          "unit": "4.1",
+          "name": "Whole & Half Steps",
+          "lessons": [
+            {
+              "id": "L4.1.1",
+              "title": "Half Steps",
+              "concept": "concept.half_step",
+              "doors": {
+                "primary": "A half step is the smallest standard distance in Western music - from one key to the very next key, black or white, no key skipped.",
+                "analogy": "Neighbouring floors in a lift. There is no floor between four and five.",
+                "contrast": "E to F is a half step, and so is B to C - with no black key between them. Everyone expects a black key to be involved. Those two pairs are the whole reason key signatures exist."
+              },
+              "tutor_lines": [
+                "Smallest step. Next key along. That is it, and it is the foundation of everything in this level.",
+                "Now look at a keyboard and find the two places where white keys are touching. E-F and B-C. Those are your two free half steps, and they are where the major scale gets its shape.",
+                "If a half step sounds uncomfortable to you - good. It is supposed to. That discomfort is the leading tone wanting to resolve, and you will use it in Unit 4.3."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.1.1-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "display": "keyboard",
+                    "highlight": "two keys",
+                    "ask": "half step or not?",
+                    "include_white_white_halfsteps": true,
+                    "rounds": 10
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 10,
+                    "need": 8
+                  }
+                },
+                {
+                  "id": "L4.1.1-E2",
+                  "modality": "SING",
+                  "generator": "G-01",
+                  "params": {
+                    "anchor_song_id": "A-m2-up",
+                    "interval": "minor 2nd",
+                    "direction": "ascending",
+                    "note": "A-m2-up is the Pitch Pet original 'Nudge' (mi-fa). Written for this project because every famous minor-2nd anchor is still in copyright.",
+                    "extend_to_min_syllables": 4,
+                    "vowel": "solfege syllables",
+                    "key_from": "learner.range"
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "note": "A-m2-up stores 2 syllables. Per the D-J precedent the generator extends it to a 4-syllable phrase (mi fa mi fa) sung continuously; the whole blob is uploaded, and only the target interval is scored."
+                  },
+                  "pass": {
+                    "pitch_within_cents": 50,
+                    "fraction": 0.75,
+                    "syllable_accuracy": 0.75
+                  }
+                },
+                {
+                  "id": "L4.1.1-E3",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "Why is E to F special? What makes it different from, say, F to G?"
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "identifies E-F as a half step",
+                      "identifies F-G as a whole step",
+                      "notes there is no black key between E and F"
+                    ],
+                    "need": 2,
+                    "of": 3
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "assumes a half step always involves a black key",
+                  "route_to_door": "contrast"
+                }
+              ]
+            },
+            {
+              "id": "L4.1.2",
+              "title": "Whole Steps",
+              "concept": "concept.whole_step",
+              "doors": {
+                "primary": "A whole step is two half steps. One key is skipped between them.",
+                "analogy": "Skipping a floor in the lift. Four to six.",
+                "contrast": "A whole step is not 'white key to white key'. B to C-sharp is a whole step and involves a black key. E to F is white-to-white and is only a half. Count the half steps; never count the colours."
+              },
+              "tutor_lines": [
+                "Two halves make a whole. Musical arithmetic is not trying to trick you.",
+                "Count keys, not colours. The colours are an accident of how a keyboard is built for human hands - they are not a theory.",
+                "Sing them next to each other. A whole step sounds open; a half step sounds squeezed. Once your ear has that, you never need the keyboard again."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.1.2-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "display": "keyboard",
+                    "ask": "whole step, half step, or neither?",
+                    "include_black_key_pairs": true,
+                    "rounds": 10
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 10,
+                    "need": 8
+                  }
+                },
+                {
+                  "id": "L4.1.2-E2",
+                  "modality": "SING",
+                  "generator": "G-01",
+                  "params": {
+                    "task": "the pet sings a step, you sing it back, then say which it was",
+                    "intervals": ["minor 2nd", "major 2nd"],
+                    "anchor_song_ids": ["A-m2-up", "A-M2-up"],
+                    "rounds": 6,
+                    "vowel": "solfege syllables",
+                    "extend_to_min_syllables": 4
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "note": "A-M2-up is Frere Jacques (do re mi do) - 4 syllables, compliant as stored. A-m2-up is extended per E2 in the previous lesson."
+                  },
+                  "pass": {
+                    "pitch_within_cents": 50,
+                    "fraction": 0.7,
+                    "identification_correct_of": 6,
+                    "identification_need": 5
+                  }
+                },
+                {
+                  "id": "L4.1.2-E3",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "from a generated starting note, place the note one whole step above or below",
+                    "include_accidentals": true,
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "uses key colour as the rule",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "hears whole and half as the same",
+                  "route_to_door": "analogy",
+                  "also": "re-run L4.1.2-E2 with the two played back to back before each answer"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "4.2",
+          "name": "Building the Major Scale",
+          "lessons": [
+            {
+              "id": "L4.2.1",
+              "title": "The Formula",
+              "concept": "concept.major_formula",
+              "doors": {
+                "primary": "Major is a pattern of distances from the starting note: Whole, Whole, Half, Whole, Whole, Whole, Half.",
+                "analogy": "A staircase where two of the steps are shallow - between rungs 3 and 4, and between 7 and 8. Your ear already knows those two shallow spots. That recognition IS what 'sounds major' means.",
+                "contrast": "Major is not 'the white keys'. That is only true if you start on C, and it is true by coincidence. Start anywhere at all, follow W-W-H-W-W-W-H, and you get major."
+              },
+              "tutor_lines": [
+                "Everybody learns C major first and quietly concludes that major means white keys. It does not. Major is a pattern of distances. Start anywhere, follow the formula, you get major.",
+                "Watch - let us build one starting on a black key, just to prove the point.",
+                "The two half steps are the whole personality of the scale. Three-to-four and seven-to-eight. That is where major gets its sweetness and its pull home."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.2.1-E1",
+                  "modality": "NOTATE",
+                  "generator": "G-02",
+                  "params": {
+                    "task": "build a major scale on a generated tonic",
+                    "tonic_pool": "all 12",
+                    "never_repeat_consecutive_tonic": true,
+                    "rounds": 6,
+                    "require_at_least_one_black_key_tonic": true
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L4.2.1-E2",
+                  "modality": "SING",
+                  "generator": "G-06",
+                  "params": {
+                    "melody_pool_ids": ["M-L2-01", "M-L2-02"],
+                    "task": "sing the full major scale in solfege, up then down",
+                    "key_from": "learner.range",
+                    "vowel": "solfege syllables"
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 8,
+                    "max_syllables": 8,
+                    "note": "M-L2-01 and M-L2-02 are 8 syllables each. Sing up and down as TWO separate uploads of 8, never one blob of 16 - asr_contract rule_4 caps a phrase at 12."
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.8,
+                    "pitch_within_cents": 50,
+                    "fraction": 0.75,
+                    "note": "0.80 here, higher than the 0.75 used elsewhere, because the learner has sung this exact scale since Level 2. Per D-H, if a human-voice clip comes back materially below the synthetic ceiling, THIS NUMBER MOVES FIRST."
+                  }
+                },
+                {
+                  "id": "L4.2.1-E3",
+                  "modality": "ID",
+                  "generator": "G-02",
+                  "params": {
+                    "task": "listen to a generated scale - is it major?",
+                    "distractors": ["natural minor", "one altered degree"],
+                    "rounds": 8
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.2.1-E4",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "Someone tells you the major scale is just the white keys on a piano. What would you say back?"
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "states that major is a pattern of steps, not specific keys",
+                      "notes white keys only work starting from C",
+                      "can state or gesture at the W-W-H-W-W-W-H shape"
+                    ],
+                    "need": 2,
+                    "of": 3,
+                    "note": "Do not require the learner to recite W-W-H-W-W-W-H verbatim. 'Two of the steps are smaller' demonstrates the concept and passes."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "only builds correctly from C",
+                  "route_to_door": "contrast",
+                  "also": "force a black-key tonic on the next round of E1"
+                },
+                {
+                  "symptom": "puts the half steps in the wrong places",
+                  "route_to_door": "analogy"
+                }
+              ]
+            },
+            {
+              "id": "L4.2.2",
+              "title": "Scales in Every Key",
+              "concept": "concept.transposition",
+              "doors": {
+                "primary": "The same formula, started on twelve different notes, gives you twelve major scales. They are the same tune in different places.",
+                "analogy": "Reading the same sentence in a higher or lower voice. Every word is where it was; the whole thing just moved.",
+                "contrast": "Transposing does not change the music. It changes which notes spell it. A melody in G major and the same melody in E-flat major are the same melody, and your ear will not care which one you chose."
+              },
+              "tutor_lines": [
+                "Same shape, new starting point. That is all transposition is, and it is the single most useful thing in this level for actually singing with other people.",
+                "You will notice some keys need sharps and some need flats. That is the formula forcing your hand - not a style choice.",
+                "Sing it in a key that suits your voice. Always. A song is not more correct in the key it was printed in."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.2.2-E1",
+                  "modality": "NOTATE",
+                  "generator": "G-02",
+                  "params": {
+                    "task": "build the major scale on the generated tonic and name every accidental it needs",
+                    "tonic_pool": "all 12",
+                    "require_sharp_keys": 3,
+                    "require_flat_keys": 3,
+                    "never_repeat_consecutive_tonic": true,
+                    "rounds": 8
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.2.2-E2",
+                  "modality": "SING",
+                  "generator": "G-06",
+                  "params": {
+                    "melody_pool_ids": ["M-L3-05", "M-L4-05"],
+                    "task": "sing the same melody in two different keys",
+                    "keys": "two generated tonics, both inside learner.range",
+                    "vowel": "solfege syllables"
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 7,
+                    "max_syllables": 9,
+                    "note": "M-L3-05 is 7 syllables, M-L4-05 is 9. Both inside asr_contract rule_4. Each key is its own upload."
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "pitch_within_cents": 50,
+                    "fraction": 0.7,
+                    "both_keys_required": true,
+                    "note": "The solfege is IDENTICAL in both keys - that is the entire point of movable do, and it means AAI's expected transcript does not change when the key does. Good property: the syllable check is key-independent."
+                  }
+                },
+                {
+                  "id": "L4.2.2-E3",
+                  "modality": "REFLECT",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "One of those two keys was easier to sing. Which, and what did the hard one feel like?"
+                  },
+                  "aai": "sentiment",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "answered": true
+                  },
+                  "writes": "learner.range (refine)",
+                  "note": "Never gates progress. If the learner reports strain, narrow learner.range by a semitone at that end and let every later generator inherit it. Per D-I, the clamp is load-bearing."
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "mixes sharps and flats inside one scale",
+                  "route_to_door": "primary",
+                  "also": "each letter name is used exactly once per scale - show the spelling rule explicitly"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "4.3",
+          "name": "Scale Degrees",
+          "lessons": [
+            {
+              "id": "L4.3.1",
+              "title": "Numbers",
+              "concept": "concept.scale_degrees_numeric",
+              "doors": {
+                "primary": "The notes of a scale are numbered 1 to 8, counting up from the tonic. The tonic is home, and it is both 1 and 8.",
+                "analogy": "House numbers on one street. Number 1 is where you live.",
+                "contrast": "A degree is not an interval. Degree is a POSITION in the scale; interval is a DISTANCE between two notes. Degree 3 and 'a third' are related, but they are not the same kind of word."
+              },
+              "tutor_lines": [
+                "You already know these - they are the solfege syllables wearing numbers. Do is 1, re is 2, and so on.",
+                "The only reason we have both systems is that numbers survive into harmony and solfege survives into singing. You will use both, for different jobs.",
+                "Degree is where. Interval is how far. Keep those apart and Unit 4.3 is easy."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.3.1-E1",
+                  "modality": "SAY",
+                  "generator": "G-02",
+                  "params": {
+                    "prompt": "In {key} major, what is degree {n}?",
+                    "keys": "generated, all 12",
+                    "rounds": 8
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["sharp", "flat", "A", "B", "C", "D", "E", "F", "G"]
+                  },
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.3.1-E2",
+                  "modality": "ID",
+                  "generator": "G-06",
+                  "params": {
+                    "task": "the pet plays the tonic then another note - which degree was it?",
+                    "rounds": 8,
+                    "degrees": [1, 2, 3, 4, 5, 6, 7, 8]
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.3.1-E3",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "label the degrees on a generated scale",
+                    "rounds": 4
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 4,
+                    "need": 4
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "answers with an interval name",
+                  "route_to_door": "contrast"
+                }
+              ]
+            },
+            {
+              "id": "L4.3.2",
+              "title": "Degree Names",
+              "concept": "concept.scale_degree_names",
+              "doors": {
+                "primary": "Each degree has a name: tonic, supertonic, mediant, subdominant, dominant, submediant, leading tone.",
+                "analogy": "The names are a map, not a list. Mediant is the MIDDLE between tonic and dominant. Sub- means below: the subdominant sits a fifth BELOW the tonic exactly as the dominant sits a fifth above, and the submediant is the middle of that downward journey. Learn the logic once and you never memorise the list.",
+                "contrast": "Subdominant is not 'the one just below the dominant'. That is the tempting wrong answer and it happens to land on the right note for the wrong reason, which is why it survives for years. It is the mirror of the dominant, measured downward from the tonic."
+              },
+              "tutor_lines": [
+                "Seven names that sound like Victorian furniture. But they are not arbitrary, and the moment you see the symmetry you stop memorising.",
+                "Dominant: a fifth up from home. Subdominant: a fifth down from home. Mirror image. Mediant: the middle going up. Submediant: the middle going down. Four of the seven names just fell out of one idea.",
+                "Leading tone leads. It is a half step below home and it cannot stand still. You have felt that since Level 2 - now it has a name."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.3.2-E1",
+                  "modality": "SAY",
+                  "generator": "G-02",
+                  "params": {
+                    "prompt": "Name degree {n} of {key} major - the NAME, not the letter.",
+                    "rounds": 7,
+                    "cover_all_seven": true
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["tonic", "supertonic", "mediant", "subdominant", "dominant", "submediant", "leading", "tone"]
+                  },
+                  "pass": {
+                    "correct_of": 7,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L4.3.2-E2",
+                  "modality": "SING",
+                  "generator": "G-02",
+                  "params": {
+                    "task": "sing the {degree_name} of {key} major",
+                    "example_prompt": "Sing the mediant of A major.",
+                    "scaffold": "the pet sounds the tonic first, always",
+                    "rounds": 6,
+                    "key_from": "learner.range",
+                    "vowel": "solfege syllables",
+                    "phrase_shape": "do, then the target degree, then do again, then the target - 4 syllables"
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "note": "The do-target-do-target phrase shape exists specifically to satisfy asr_contract rule_3 while keeping the task a single-degree task. Only the target syllables are scored; the anchoring do tokens are stripped from scoring, never from the upload."
+                  },
+                  "pass": {
+                    "pitch_within_cents": 50,
+                    "correct_of": 6,
+                    "need": 4,
+                    "note": "STAR EXERCISE. Theory recall, vocal production and speech recognition in one action - name a degree you have never been shown in that key, then produce it with your voice. Nothing else in the curriculum stacks all three."
+                  }
+                },
+                {
+                  "id": "L4.3.2-E3",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "Why does 'sub' show up twice in these names? What is it doing?"
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "connects 'sub' to below / downward",
+                      "describes subdominant as a fifth below the tonic, mirroring the dominant",
+                      "does not define subdominant as 'below the dominant'"
+                    ],
+                    "need": 2,
+                    "of": 3,
+                    "note": "The third bullet is a NEGATIVE check. If the learner gives the below-the-dominant answer, route to the contrast door regardless of the other two."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "defines subdominant as below the dominant",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "recites the list but cannot place a name in a new key",
+                  "route_to_door": "analogy"
+                }
+              ]
+            },
+            {
+              "id": "L4.3.3",
+              "title": "Tendency Tones",
+              "concept": "concept.tendency_tones",
+              "doors": {
+                "primary": "Some degrees are restless. Ti pulls up into do. Fa pulls down into mi. You hear the pull before you can name it.",
+                "analogy": "Magnets. Hold ti near do and you can feel it being tugged. Let go and it snaps home.",
+                "contrast": "The pull comes from the KEY, not from the pitch. The note F is restless in C major and completely at rest in F major. Same sound, different job."
+              },
+              "tutor_lines": [
+                "This is the most useful thing in Level 4 and the least examinable. Sing ti and then stop. Do not resolve it. Notice how much you want to.",
+                "That wanting is what composers spend their whole careers playing with. Withhold the resolution and the room leans forward.",
+                "Fa going down to mi is the gentler one. Softer magnet, same idea."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.3.3-E1",
+                  "modality": "SING",
+                  "generator": "G-06",
+                  "params": {
+                    "melody_pool_ids": ["M-L2-03"],
+                    "task": "sing sol la ti do - land the resolution",
+                    "key_from": "learner.range",
+                    "vowel": "solfege syllables",
+                    "note": "M-L2-03 'Leading Tone Tug' is exactly this, 4 syllables, and the learner already met it in Level 2. Familiar material carrying a new idea."
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "final_note_within_cents": 30,
+                    "note": "Tighter band on the FINAL note only. The resolution is the skill; the approach is not."
+                  }
+                },
+                {
+                  "id": "L4.3.3-E2",
+                  "modality": "ID",
+                  "generator": "G-05",
+                  "params": {
+                    "task": "does this sound finished?",
+                    "progression_pool_ids": ["P-01", "P-02", "P-03"],
+                    "variants": ["full cadence", "stopped on V", "stopped on ti"],
+                    "rounds": 8
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.3.3-E3",
+                  "modality": "SING",
+                  "generator": "G-04",
+                  "params": {
+                    "task": "the pet holds a chord and sounds one restless note - sing where it wants to go",
+                    "rounds": 6,
+                    "tendency_degrees": [7, 4],
+                    "key_from": "learner.range",
+                    "vowel": "solfege syllables",
+                    "phrase_shape": "sing the restless note, its resolution, then both again - 4 syllables"
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4
+                  },
+                  "pass": {
+                    "pitch_within_cents": 50,
+                    "correct_of": 6,
+                    "need": 4
+                  }
+                },
+                {
+                  "id": "L4.3.3-E4",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "The note F sounds restless in one key and totally settled in another. How can the same note do both?"
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "attributes the pull to the key or context, not the pitch itself",
+                      "identifies F as degree 4 in C major and degree 1 in F major"
+                    ],
+                    "need": 1,
+                    "of": 2,
+                    "note": "First bullet alone is a pass. This is the hardest conceptual move in Level 4 and a learner who has the idea without the bookkeeping has the thing that matters."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "thinks the pull is a property of the note itself",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "resolves ti downward",
+                  "route_to_door": "analogy",
+                  "also": "re-run E1 with the pet sustaining do underneath"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "4.4",
+          "name": "Accidentals & Key Signatures",
+          "lessons": [
+            {
+              "id": "L4.4.1",
+              "title": "Sharps, Flats, Naturals",
+              "concept": "concept.accidentals",
+              "doors": {
+                "primary": "A sharp raises a note by a half step, a flat lowers it by a half step, a natural cancels either one. An accidental lasts to the end of the bar.",
+                "analogy": "A sticky note stuck on a word. It applies for the rest of that sentence, then falls off at the full stop.",
+                "contrast": "An accidental applies to that pitch IN THAT OCTAVE only. Sharpen the F on the top line and the F in the bottom space is untouched. Almost everyone gets this wrong once."
+              },
+              "tutor_lines": [
+                "Sharp up, flat down, natural cancels. Three symbols, and you now know every accidental you will meet for years.",
+                "The bar line is the eraser. Whatever you sharpened is back to normal in the next bar, no announcement needed.",
+                "Same letter, different octave, different sticky note. Composers write a courtesy natural when they think you might trip - they are being kind, not correcting you."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.4.1-E1",
+                  "modality": "ID",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "given a bar with accidentals, which pitches are altered?",
+                    "include_octave_trap": true,
+                    "rounds": 8
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.4.1-E2",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "add the accidental that produces the named pitch",
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L4.4.1-E3",
+                  "modality": "SING",
+                  "generator": "G-06",
+                  "params": {
+                    "melody_pool_ids": ["M-L2-04", "M-L3-03"],
+                    "task": "sing the melody, then sing it with one generated degree raised a half step",
+                    "key_from": "learner.range",
+                    "vowel": "solfege syllables",
+                    "note": "Chromatic solfege syllables (di, ri, fi, si, li) are NOT introduced here. The learner sings the altered note on the nearest diatonic syllable and the DSP scores the pitch. Chromatic solfege is Level 5 material."
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 5,
+                    "max_syllables": 6,
+                    "note": "M-L2-04 is 6 syllables, M-L3-03 is 5. Compliant. Critical: the expected transcript is UNCHANGED by the alteration, because the syllable does not change - only the pitch does. This is asr_contract rule_5 working exactly as designed: AAI checks the sequence, the DSP catches the half step."
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "altered_note_within_cents": 50,
+                    "note": "Score the altered note separately and report it separately. It is the only note this exercise is about."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "applies an accidental across octaves",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "carries an accidental past the bar line",
+                  "route_to_door": "analogy"
+                }
+              ]
+            },
+            {
+              "id": "L4.4.2",
+              "title": "Key Signatures & the Order of Sharps",
+              "concept": "concept.key_signature_sharps",
+              "doors": {
+                "primary": "Sharps written once at the clef apply for the whole piece. They always appear in the same order: F C G D A E B.",
+                "analogy": "Father Charles Goes Down And Ends Battle. Read it backwards and you have the order of flats, free.",
+                "contrast": "A key signature is not fifteen separate facts to memorise. It is a procedure. The LAST sharp is always ti - so the tonic is one half step above it. Run the procedure, get the key, every time."
+              },
+              "tutor_lines": [
+                "Nobody memorises key signatures. People who look like they memorised them are running a two-second procedure in their head.",
+                "Find the last sharp. Go up one half step. That is your key. Four sharps, last one is D-sharp, up a half step is E - E major. Done.",
+                "The order never changes and it never skips. If you see three sharps they are F, C and G, in that order, in those positions. Always."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.4.2-E1",
+                  "modality": "SAY",
+                  "generator": "G-09",
+                  "params": {
+                    "task": "recite the order of sharps",
+                    "expected_sequence": ["F", "C", "G", "D", "A", "E", "B"]
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["F", "C", "G", "D", "A", "E", "B"],
+                    "note": "One utterance, one upload. Letters spoken in sequence - AAI's native domain. Normalise 'eff'/'ef' to F and 'bee' to B before comparing."
+                  },
+                  "pass": {
+                    "sequence_correct": true
+                  }
+                },
+                {
+                  "id": "L4.4.2-E2",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "write the key signature for a generated sharp key",
+                    "keys": ["G", "D", "A", "E", "B", "F#"],
+                    "clefs": ["treble", "bass"],
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5,
+                    "note": "Both clefs required. The sharp positions differ between treble and bass and a learner who only ever sees treble has half the skill."
+                  }
+                },
+                {
+                  "id": "L4.4.2-E3",
+                  "modality": "SAY",
+                  "generator": "G-09",
+                  "params": {
+                    "task": "name the key from the signature shown",
+                    "direction": "signature to key",
+                    "rounds": 6
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["sharp", "major", "A", "B", "C", "D", "E", "F", "G"]
+                  },
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L4.4.2-E4",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "You are shown a signature with four sharps. Walk me through, out loud, how you work out the key - do not just tell me the answer."
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "describes a PROCEDURE rather than recalling a memorised pair",
+                      "identifies the last sharp as the reference point",
+                      "goes up a half step from it"
+                    ],
+                    "need": 2,
+                    "of": 3,
+                    "note": "A learner who says 'four sharps is E major' and nothing else has memorised, not understood. Route to contrast."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "recalls key-signature pairs with no procedure",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "writes sharps out of order or in the wrong octave position",
+                  "route_to_door": "primary"
+                }
+              ]
+            },
+            {
+              "id": "L4.4.3",
+              "title": "The Order of Flats",
+              "concept": "concept.key_signature_flats",
+              "doors": {
+                "primary": "Flats appear in the order B E A D G C F - the order of sharps, backwards.",
+                "analogy": "BEAD is a real word. You already know four of the seven, for free, and the rest is Greatest Common Factor if you want a mnemonic for G C F.",
+                "contrast": "The second-to-last flat names the key. That works for every flat key except F major, which has only one flat and therefore has no second-to-last. F major is the one you memorise. One exception is a fair price."
+              },
+              "tutor_lines": [
+                "BEAD, then GCF. Seven letters, and you got the first four for nothing.",
+                "Second-to-last flat is the key. Three flats: B, E, A - second-to-last is E-flat, so E-flat major. It really is that quick.",
+                "F major has one flat and breaks the trick. Memorise that one and the other six are procedure."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.4.3-E1",
+                  "modality": "SAY",
+                  "generator": "G-09",
+                  "params": {
+                    "task": "recite the order of flats",
+                    "expected_sequence": ["B", "E", "A", "D", "G", "C", "F"]
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["B", "E", "A", "D", "G", "C", "F"]
+                  },
+                  "pass": {
+                    "sequence_correct": true
+                  }
+                },
+                {
+                  "id": "L4.4.3-E2",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "write the key signature for a generated flat key",
+                    "keys": ["F", "Bb", "Eb", "Ab", "Db", "Gb"],
+                    "clefs": ["treble", "bass"],
+                    "rounds": 6
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 6,
+                    "need": 5
+                  }
+                },
+                {
+                  "id": "L4.4.3-E3",
+                  "modality": "SAY",
+                  "generator": "G-09",
+                  "params": {
+                    "task": "name the key - signatures drawn from BOTH sharp and flat sides, shuffled",
+                    "rounds": 10,
+                    "include_F_major": true
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["sharp", "flat", "major", "A", "B", "C", "D", "E", "F", "G"]
+                  },
+                  "pass": {
+                    "correct_of": 10,
+                    "need": 8,
+                    "note": "Shuffled on purpose. Running sharps and flats in separate blocks lets a learner answer from which block they are in rather than from the signature."
+                  }
+                },
+                {
+                  "id": "L4.4.3-E4",
+                  "modality": "NOTATE",
+                  "generator": "G-08",
+                  "params": {
+                    "task": "given a key name, write its signature - the reverse direction",
+                    "rounds": 8,
+                    "mix": "sharp and flat keys shuffled"
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6,
+                    "note": "Both directions are drilled so neither becomes rote. Signature to key and key to signature are different retrievals and a learner can have one without the other."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "applies the second-to-last rule to F major",
+                  "route_to_door": "contrast"
+                },
+                {
+                  "symptom": "reverses the flat order",
+                  "route_to_door": "analogy"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "4.5",
+          "name": "The Circle of Fifths (I)",
+          "note": "Sharp side only. The flat side and minor keys are Level 5. Introducing half the circle honestly beats introducing all of it as a diagram to stare at.",
+          "lessons": [
+            {
+              "id": "L4.5.1",
+              "title": "The Sharp Side",
+              "concept": "concept.circle_of_fifths_sharp",
+              "doors": {
+                "primary": "Move up a fifth from C and you get G, which needs exactly one sharp. Up another fifth: D, two sharps. C G D A E B F-sharp.",
+                "analogy": "A clock face where every hour forward adds one sharp. Twelve o'clock is C, with none.",
+                "contrast": "The circle is not a memory trick someone invented. It is a CONSEQUENCE of the major formula. Build the scales yourself and the circle appears whether you wanted it or not. We are going to derive it, not memorise it."
+              },
+              "tutor_lines": [
+                "Build G major right now with the formula. W W H W W W H from G. You will find you need exactly one sharp, and it is F-sharp. Nobody decided that. The formula forced it.",
+                "Do it again from D and you get two, and the first one is still F-sharp. The pattern is not a coincidence, it is arithmetic.",
+                "Once you have seen it fall out of the formula twice, the circle stops being a poster on a wall and becomes something you could rebuild from scratch on a napkin."
+              ],
+              "exercises": [
+                {
+                  "id": "L4.5.1-E1",
+                  "modality": "NOTATE",
+                  "generator": "G-09",
+                  "params": {
+                    "task": "place the sharp-side keys on a blank circle",
+                    "keys": ["C", "G", "D", "A", "E", "B", "F#"],
+                    "rounds": 3
+                  },
+                  "aai": "none",
+                  "pass": {
+                    "correct_of": 3,
+                    "need": 2
+                  }
+                },
+                {
+                  "id": "L4.5.1-E2",
+                  "modality": "SAY",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "What is a fifth above {note}?",
+                    "rounds": 8
+                  },
+                  "aai": "batch_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "word_boost_extra": ["sharp", "flat", "A", "B", "C", "D", "E", "F", "G"]
+                  },
+                  "pass": {
+                    "correct_of": 8,
+                    "need": 6
+                  }
+                },
+                {
+                  "id": "L4.5.1-E3",
+                  "modality": "SING",
+                  "generator": "G-01",
+                  "params": {
+                    "task": "sing root movement by fifths - do, sol, do, sol",
+                    "anchor_song_id": "A-P5-up",
+                    "melody_pool_ids": ["M-L3-02"],
+                    "key_from": "learner.range",
+                    "vowel": "solfege syllables",
+                    "note": "M-L3-02 'Fifth Jump' is do sol do sol do - 5 syllables, exactly this movement, already in the pool."
+                  },
+                  "aai": "streaming_stt",
+                  "asr": {
+                    "whole_phrase": true,
+                    "min_syllables": 4,
+                    "max_syllables": 5
+                  },
+                  "pass": {
+                    "syllable_accuracy": 0.75,
+                    "pitch_within_cents": 50,
+                    "fraction": 0.7
+                  }
+                },
+                {
+                  "id": "L4.5.1-E4",
+                  "modality": "EXPLAIN",
+                  "generator": "G-09",
+                  "params": {
+                    "prompt": "Why does every step around the circle add exactly one sharp - not two, not none? Take your time."
+                  },
+                  "aai": "lemur",
+                  "asr": {
+                    "whole_phrase": true
+                  },
+                  "pass": {
+                    "lemur_rubric": [
+                      "connects the new key to the major formula rather than to the diagram",
+                      "recognises that the new scale shares most of its notes with the old one",
+                      "identifies that exactly one note must be raised to keep the W-W-H-W-W-W-H shape"
+                    ],
+                    "need": 2,
+                    "of": 3,
+                    "note": "STAR EXERCISE, and the hardest LeMUR call in Levels 1-4. This is a genuine conceptual check that a keyword matcher cannot fake - a learner can use none of the expected vocabulary and still be completely right. If LeMUR proves unreliable here, lower need to 1 rather than cutting the exercise; the question is worth asking even if we grade it generously."
+                  }
+                }
+              ],
+              "errors": [
+                {
+                  "symptom": "treats the circle as a diagram to memorise",
+                  "route_to_door": "contrast",
+                  "also": "have them build G major and D major from the formula before returning to E4"
+                },
+                {
+                  "symptom": "cannot find a fifth above a note without counting on a keyboard",
+                  "route_to_door": "primary",
+                  "also": "counting is fine. Speed comes later. Do not make them feel slow for using a tool that works."
+                }
+              ]
+            }
+          ],
+          "recital": {
+            "id": "RECITAL-4",
+            "title": "Home Key",
+            "unlocks_at_mastery_band": 4,
+            "task": "Three parts, pool-drawn, different every attempt. 1) Sing a full major scale up and down in solfege on a randomly generated tonic inside your range. 2) Sight-sing an unseen 8-bar diatonic melody in that same key. 3) Name a key from its signature and explain aloud how you knew.",
+            "melody_pool_ids": ["M-L4-01", "M-L4-02", "M-L4-03", "M-L4-04", "M-L4-05"],
+            "scale_generator": "G-02, tonic generated from learner.range, never the same tonic twice in a row",
+            "aai": "streaming_stt",
+            "also_uses_aai": ["lemur"],
+            "asr": {
+              "whole_phrase": true,
+              "min_syllables": 4,
+              "max_syllables": 12,
+              "note": "Part 1 is two uploads of 8 syllables (up, then down) - never one blob of 16, which would breach asr_contract rule_4. Part 2 is one continuous blob; the longest L4 melody is M-L4-03 and M-L4-05 at 9 syllables, inside the cap. Part 3 is spoken and goes to LeMUR.",
+              "octave_warning": "If the generator draws a melody containing two do tokens an octave apart, the transcript cannot distinguish them. The DSP disambiguates octave. Per D-D, never score octave from the transcript."
+            },
+            "rubric": [
+              {
+                "criterion": "intonation",
+                "scale": 5,
+                "measured_by": "DSP, fraction of notes within 50 cents"
+              },
+              {
+                "criterion": "syllable accuracy",
+                "scale": 5,
+                "measured_by": "AssemblyAI, transcript normalised through homophone_map, positional match against the expected solfege sequence"
+              },
+              {
+                "criterion": "rhythm",
+                "scale": 5,
+                "measured_by": "DSP onset deviation against the generated grid"
+              },
+              {
+                "criterion": "theory accuracy",
+                "scale": 5,
+                "measured_by": "key named correctly from the signature"
+              },
+              {
+                "criterion": "explanation quality",
+                "scale": 5,
+                "measured_by": "LeMUR - did they describe a procedure, or recall a memorised pair?"
+              }
+            ],
+            "pass": {
+              "all_criteria_min": 3
+            },
+            "on_pass": {
+              "xp": 300,
+              "pet_event": "second_evolution",
+              "unlocks": "first unlockable pet from the roster",
+              "tutor_line": "Sight-sung, in a key you had never seen, and then you explained how you knew. Four levels ago you told me you were not musical. I have the recording."
+            },
+            "on_miss": {
+              "never_say": ["failed", "try again"],
+              "do": "Split it. Whichever part scored lowest, the pet does that one alone with the learner at an easier setting, then offers the whole recital again. Never re-run all three to fix one. Retry is free and unlimited."
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "open_items": [
+    {
+      "id": "OI-L34-01",
+      "item": "L4.4.1-E3 deliberately avoids chromatic solfege (di, ri, fi, si, li). If Level 5 is ever built, that lesson should be revisited so the two files agree on when chromatic syllables arrive.",
+      "owner": "Doc",
+      "blocking": false
+    },
+    {
+      "id": "OI-L34-02",
+      "item": "The accent criterion in L3.2.1-E1 requires tap velocity or duration from the input device. If the runner only has a binary click, the criterion must be SKIPPED, not guessed at. Flagged in the exercise itself.",
+      "owner": "B-07",
+      "blocking": false
+    },
+    {
+      "id": "OI-L34-03",
+      "item": "M-L4-02 in the content pool has no 'degrees' array (every other melody does). Harmless for singing, but a runner that reads degrees will get undefined. Either add degrees [6,8,10,8,6] to the pool or have the runner derive degrees from solfege. Doc's preference: derive, so the pool stays the single source.",
+      "owner": "B-07",
+      "blocking": false
+    },
+    {
+      "id": "OI-L34-04",
+      "item": "Three exercises (L3.3.3-E3, L4.1.1-E2, L4.3.2-E2, L4.3.3-E3) extend a short phrase to reach the 4-syllable asr_contract minimum. This is the D-J pattern applied four more times. The runner needs ONE generic implementation of 'pad the phrase for upload, strip the padding from scoring' - not five special cases.",
+      "owner": "B-07",
+      "blocking": false
+    }
+  ]
+}

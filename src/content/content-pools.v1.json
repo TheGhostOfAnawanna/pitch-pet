@@ -1,0 +1,126 @@
+{
+  "$schema_version": "1.0",
+  "id": "pitch-pet-content-pools",
+  "authored_by": "Doc",
+  "authored_utc": "2026-09-10T01:30:00Z",
+  "license": "MIT. All musical content herein is public domain (pre-1929 / traditional) or original to Pitch Pet. No copyrighted melodies, no copyrighted lyrics.",
+  "notes": "D-02 deliverable. Consumed by the lesson runner (B-07) and the SING exercise (B-08). Every field here is load-bearing; do not invent extra keys without logging a decision.",
+
+  "asr_contract": {
+    "source": "B-04 gate, measured 2026-09-10 against AssemblyAI batch API",
+    "rule_1_send_whole_phrase": "Send the ENTIRE sung phrase to AssemblyAI as ONE continuous audio blob. Measured: continuous legato phrase = 100% syllable accuracy; the same syllables chopped into per-note files with silence between = 25%. Isolation destroys recognition.",
+    "rule_2_never_pad": "Do not insert silence between notes before upload. Do not upload per-note segments. Ever.",
+    "rule_3_min_phrase_len": 4,
+    "rule_4_max_phrase_len": 12,
+    "rule_5_division_of_labour": "Pitch DSP (local, in-browser) owns per-note pitch and timing accuracy. AssemblyAI owns the syllable SEQUENCE over the whole phrase. Do not ask AAI which note was flat; do not ask the DSP which syllable was sung.",
+    "rule_6_word_boost": "Always send word_boost with boost_param 'high'. Measured: on degraded audio it moved 0% to 62.5%. On clean audio it is a no-op, so it is free insurance.",
+    "word_boost_list": ["do","re","mi","fa","sol","la","ti","si","doh","ray","soh","te","fah","me"],
+    "rule_7_normalise_before_compare": "Always run the transcript through homophone_map before scoring. AAI returned canonical solfege spellings on clean audio, but the map costs nothing and catches 'soul/so', 'ray', 'tea/si'.",
+    "confidence": "VERIFIED on synthetic (espeak+ffmpeg) audio. NOT yet verified on a human voice. Human vowels sustain longer and consonants are weaker, so treat the 100% as an upper bound. One real human clip must confirm before the demo is recorded."
+  },
+
+  "homophone_map": {
+    "do":  ["do","doe","dough","doh","d'oh","dou","d"],
+    "re":  ["re","ray","rey","rae","reh","wray"],
+    "mi":  ["mi","me","mee","meh","my"],
+    "fa":  ["fa","fah","faw","far","pha"],
+    "sol": ["sol","soul","so","sole","soh","saul","sew"],
+    "la":  ["la","lah","law","lar"],
+    "ti":  ["ti","tea","tee","te","si","see","ci","ty"]
+  },
+
+  "solfege": {
+    "system": "movable-do, major",
+    "degrees": [
+      {"syllable": "do",  "scale_degree": 1, "semitones_from_do": 0},
+      {"syllable": "re",  "scale_degree": 2, "semitones_from_do": 2},
+      {"syllable": "mi",  "scale_degree": 3, "semitones_from_do": 4},
+      {"syllable": "fa",  "scale_degree": 4, "semitones_from_do": 5},
+      {"syllable": "sol", "scale_degree": 5, "semitones_from_do": 7},
+      {"syllable": "la",  "scale_degree": 6, "semitones_from_do": 9},
+      {"syllable": "ti",  "scale_degree": 7, "semitones_from_do": 11},
+      {"syllable": "do'", "scale_degree": 8, "semitones_from_do": 12}
+    ],
+    "default_keys": {
+      "comfortable_low": "C3",
+      "comfortable_mid": "C4",
+      "comfortable_high": "G4",
+      "note": "Pick the key from the learner's measured comfortable range at onboarding. Never force a fixed key; a learner straining an octave too high will score badly for reasons that have nothing to do with their ear."
+    },
+    "tolerance_cents": {
+      "perfect": 15,
+      "good": 30,
+      "close": 50,
+      "off": 51,
+      "note": "Beginners are wide. 50 cents is a quarter tone; below that a human hears 'the right note, slightly off'. Do not punish inside 15 cents - that is measurement noise on a phone mic."
+    }
+  },
+
+  "melodies": [
+    {"id": "M-L1-01", "level": 1, "name": "First Three", "solfege": ["do","re","mi","re","do"], "degrees": [1,2,3,2,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "steps up and back down; the feeling of home"},
+    {"id": "M-L1-02", "level": 1, "name": "Rock the Step", "solfege": ["do","re","do","re","do"], "degrees": [1,2,1,2,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "major 2nd, both directions"},
+    {"id": "M-L1-03", "level": 1, "name": "Up to Five", "solfege": ["do","re","mi","fa","sol"], "degrees": [1,2,3,4,5], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "the first pentachord"},
+    {"id": "M-L1-04", "level": 1, "name": "Down From Five", "solfege": ["sol","fa","mi","re","do"], "degrees": [5,4,3,2,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "descending steps land home"},
+    {"id": "M-L1-05", "level": 1, "name": "There and Back", "solfege": ["do","re","mi","fa","sol","fa","mi","re","do"], "degrees": [1,2,3,4,5,4,3,2,1], "beats": [1,1,1,1,1,1,1,1,2], "asr_eligible": true, "teaches": "sustained phrase control"},
+
+    {"id": "M-L2-01", "level": 2, "name": "Full Ladder", "solfege": ["do","re","mi","fa","sol","la","ti","do"], "degrees": [1,2,3,4,5,6,7,8], "beats": [1,1,1,1,1,1,1,2], "asr_eligible": true, "teaches": "the complete major scale ascending"},
+    {"id": "M-L2-02", "level": 2, "name": "Ladder Down", "solfege": ["do","ti","la","sol","fa","mi","re","do"], "degrees": [8,7,6,5,4,3,2,1], "beats": [1,1,1,1,1,1,1,2], "asr_eligible": true, "teaches": "descending scale; ti pulls to do"},
+    {"id": "M-L2-03", "level": 2, "name": "Leading Tone Tug", "solfege": ["sol","la","ti","do"], "degrees": [5,6,7,8], "beats": [1,1,1,2], "asr_eligible": true, "teaches": "the pull of ti into do"},
+    {"id": "M-L2-04", "level": 2, "name": "Skip a Rung", "solfege": ["do","mi","re","fa","mi","sol"], "degrees": [1,3,2,4,3,5], "beats": [1,1,1,1,1,2], "asr_eligible": true, "teaches": "thirds inside stepwise motion"},
+    {"id": "M-L2-05", "level": 2, "name": "Home Triad", "solfege": ["do","mi","sol","mi","do"], "degrees": [1,3,5,3,1], "beats": [1,1,2,1,2], "asr_eligible": true, "teaches": "the major triad as one shape"},
+
+    {"id": "M-L3-01", "level": 3, "name": "Fourth Jump", "solfege": ["do","fa","do","fa","do"], "degrees": [1,4,1,4,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "perfect 4th, both directions"},
+    {"id": "M-L3-02", "level": 3, "name": "Fifth Jump", "solfege": ["do","sol","do","sol","do"], "degrees": [1,5,1,5,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "perfect 5th, both directions"},
+    {"id": "M-L3-03", "level": 3, "name": "Reach for Six", "solfege": ["do","la","sol","mi","do"], "degrees": [1,6,5,3,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "major 6th, then settle"},
+    {"id": "M-L3-04", "level": 3, "name": "Octave Bell", "solfege": ["do","do","sol","sol","do"], "degrees": [1,8,5,5,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "the octave and the fifth as anchors", "warning": "two 'do' tokens with different octaves - the DSP disambiguates octave, the ASR cannot. Never score octave from the transcript."},
+    {"id": "M-L3-05", "level": 3, "name": "Arpeggio Climb", "solfege": ["do","mi","sol","do","sol","mi","do"], "degrees": [1,3,5,8,5,3,1], "beats": [1,1,1,2,1,1,2], "asr_eligible": true, "teaches": "triad across the octave"},
+
+    {"id": "M-L4-01", "level": 4, "name": "Minor Colour", "solfege": ["la","ti","do","re","mi"], "degrees": [6,7,8,9,10], "mode": "natural minor on la", "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "the same syllables, a different home"},
+    {"id": "M-L4-02", "level": 4, "name": "Minor Triad", "solfege": ["la","do","mi","do","la"], "mode": "natural minor on la", "beats": [1,1,2,1,2], "asr_eligible": true, "teaches": "minor triad shape by ear"},
+    {"id": "M-L4-03", "level": 4, "name": "Turn Around", "solfege": ["do","re","mi","do","re","mi","sol","mi","do"], "degrees": [1,2,3,1,2,3,5,3,1], "beats": [1,1,1,1,1,1,1,1,2], "asr_eligible": true, "teaches": "phrase memory over 9 notes"},
+    {"id": "M-L4-04", "level": 4, "name": "Call", "solfege": ["sol","mi","sol","mi","do"], "degrees": [5,3,5,3,1], "beats": [1,1,1,1,2], "asr_eligible": true, "teaches": "the universal playground call"},
+    {"id": "M-L4-05", "level": 4, "name": "Long Road Home", "solfege": ["do","mi","sol","la","sol","fa","mi","re","do"], "degrees": [1,3,5,6,5,4,3,2,1], "beats": [1,1,1,1,1,1,1,1,2], "asr_eligible": true, "teaches": "leaps out, steps back - the shape of most real melodies"}
+  ],
+
+  "rhythms": [
+    {"id": "R-01", "level": 1, "name": "Steady Walk",      "meter": "4/4", "pattern": [1,1,1,1], "syllables": ["ta","ta","ta","ta"]},
+    {"id": "R-02", "level": 1, "name": "Long and Short",   "meter": "4/4", "pattern": [2,1,1],   "syllables": ["ta-a","ta","ta"]},
+    {"id": "R-03", "level": 1, "name": "Two Halves",       "meter": "4/4", "pattern": [2,2],     "syllables": ["ta-a","ta-a"]},
+    {"id": "R-04", "level": 2, "name": "Skip Along",       "meter": "4/4", "pattern": [0.5,0.5,1,1,1], "syllables": ["ti","ti","ta","ta","ta"]},
+    {"id": "R-05", "level": 2, "name": "Four Quick",       "meter": "4/4", "pattern": [0.5,0.5,0.5,0.5,1,1], "syllables": ["ti","ti","ti","ti","ta","ta"]},
+    {"id": "R-06", "level": 3, "name": "Waltz",            "meter": "3/4", "pattern": [1,1,1],   "syllables": ["ta","ta","ta"]},
+    {"id": "R-07", "level": 3, "name": "Waltz Lean",       "meter": "3/4", "pattern": [2,1],     "syllables": ["ta-a","ta"]},
+    {"id": "R-08", "level": 3, "name": "Dotted Skip",      "meter": "4/4", "pattern": [1.5,0.5,1,1], "syllables": ["ta-am","ti","ta","ta"]},
+    {"id": "R-09", "level": 4, "name": "Off the Beat",     "meter": "4/4", "pattern": [0.5,1,1,1,0.5], "syllables": ["ti","ta","ta","ta","ti"], "teaches": "syncopation"},
+    {"id": "R-10", "level": 4, "name": "Six Eight Lilt",   "meter": "6/8", "pattern": [1,0.5,0.5,1,0.5,0.5], "syllables": ["ta","ti","ti","ta","ti","ti"]}
+  ],
+
+  "progressions": [
+    {"id": "P-01", "level": 2, "name": "Home and Away",   "roman": ["I","V","I"],           "teaches": "tension and release, the smallest complete story"},
+    {"id": "P-02", "level": 3, "name": "Three Chord",     "roman": ["I","IV","V","I"],      "teaches": "the backbone of folk, blues and pop"},
+    {"id": "P-03", "level": 3, "name": "Soft Landing",    "roman": ["I","IV","I"],          "teaches": "the plagal move - resolution without the pull of V"},
+    {"id": "P-04", "level": 4, "name": "Sad Cousin",      "roman": ["I","vi","IV","V"],     "teaches": "the minor chord borrowed into a major key"},
+    {"id": "P-05", "level": 4, "name": "Descending Bass", "roman": ["I","V","vi","IV"],     "teaches": "the four chords behind an enormous amount of popular music"},
+    {"id": "P-06", "level": 4, "name": "Minor Home",      "roman": ["i","iv","V","i"],      "teaches": "a minor key with a major V - the harmonic minor colour"}
+  ],
+
+  "anchor_songs": [
+    {"id": "A-P5-up",  "interval": "perfect 5th",  "direction": "ascending",  "source": "Ah! vous dirai-je, maman / Twinkle Twinkle Little Star", "origin": "French traditional, 1761", "rights": "public domain", "cue": "the jump from 'Twin-' to '-kle twin-kle'", "solfege": ["do","do","sol","sol"]},
+    {"id": "A-P4-up",  "interval": "perfect 4th",  "direction": "ascending",  "source": "Bridal Chorus (Here Comes the Bride), Wagner", "origin": "1850", "rights": "public domain", "cue": "the lift into 'Here comes'", "solfege": ["sol","do"]},
+    {"id": "A-M3-up",  "interval": "major 3rd",    "direction": "ascending",  "source": "When the Saints Go Marching In", "origin": "American traditional spiritual", "rights": "public domain", "cue": "'Oh when the saints' - the first two notes", "solfege": ["do","mi"]},
+    {"id": "A-M2-up",  "interval": "major 2nd",    "direction": "ascending",  "source": "Frere Jacques", "origin": "French traditional, published 1780", "rights": "public domain", "cue": "'Fre-re Jac-ques' walks up by steps", "solfege": ["do","re","mi","do"]},
+    {"id": "A-M6-up",  "interval": "major 6th",    "direction": "ascending",  "source": "My Bonnie Lies Over the Ocean", "origin": "Scottish traditional", "rights": "public domain", "cue": "the leap on 'My BON-nie'", "solfege": ["sol","mi"]},
+    {"id": "A-P4-dn",  "interval": "perfect 4th",  "direction": "descending", "source": "Adeste Fideles (O Come All Ye Faithful)", "origin": "attributed John Francis Wade, c.1751", "rights": "public domain", "cue": "'O come' falls a fourth", "solfege": ["do","sol"]},
+    {"id": "A-m3-dn",  "interval": "minor 3rd",    "direction": "descending", "source": "Rain Rain Go Away", "origin": "English traditional nursery rhyme", "rights": "public domain", "cue": "the two-note taunt every child already knows", "solfege": ["sol","mi"]},
+    {"id": "A-M6-dn",  "interval": "major 6th",    "direction": "descending", "source": "Nobody Knows the Trouble I've Seen", "origin": "American traditional spiritual", "rights": "public domain", "cue": "the drop on 'NO-bo-dy'", "solfege": ["do","mi"]},
+    {"id": "A-M3-dn",  "interval": "major 3rd",    "direction": "descending", "source": "The Star-Spangled Banner", "origin": "melody: To Anacreon in Heaven, c.1773; lyrics 1814", "rights": "public domain", "cue": "'Oh - say' falls; the whole opening outlines the triad downward", "solfege": ["sol","mi","do"]},
+    {"id": "A-P8-up",  "interval": "octave",       "direction": "ascending",  "source": "Pitch Pet original: 'Pet Call'", "origin": "written for Pitch Pet, 2026", "rights": "original, MIT with the project", "cue": "your pet's two-note name-call, low then high", "solfege": ["do","do'"], "note": "Deliberately original. The famous octave anchors are all still in copyright; writing our own is free and safer than arguing about it."},
+    {"id": "A-m2-up",  "interval": "minor 2nd",    "direction": "ascending",  "source": "Pitch Pet original: 'Nudge'", "origin": "written for Pitch Pet, 2026", "rights": "original, MIT with the project", "cue": "the smallest possible step - it should feel uncomfortable", "solfege": ["mi","fa"], "note": "Original for the same reason as A-P8-up."}
+  ],
+
+  "open_items": [
+    "Anchors for m6, m7, M7 and the tritone are deliberately absent. They belong to Levels 5-7, which sit at rungs 1-2 of the scope-cut ladder. Do not block on them.",
+    "Every anchor above is traditional/pre-1929 or written for this project. If anyone adds an anchor later, the rights field is mandatory and 'probably fine' is not an acceptable value."
+  ]
+}
+

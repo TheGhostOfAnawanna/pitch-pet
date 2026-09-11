@@ -1,0 +1,732 @@
+{
+  "$schema_version": "1.0",
+  "id": "pitch-pet-lessons-L1-L2",
+  "task": "D-03",
+  "authored_by": "Doc",
+  "authored_utc": "2026-09-10T22:40:00Z",
+  "license": "MIT. All musical content referenced here is public domain (pre-1929 / traditional) or original to Pitch Pet.",
+  "consumes": "pitch-pet-content-pools-v1.json",
+  "consumed_by": "B-07 lesson runner, B-08 SING exercise, B-09 talk-to-tutor",
+  "notes": "Levels 1-2 only. Levels 3-4 land as D-04. Every melody_id / rhythm_id / progression_id below resolves to a real entry in pitch-pet-content-pools-v1.json - do not invent IDs. Every SING/ECHO exercise that sends audio to AssemblyAI obeys asr_contract rule_1: ONE continuous blob for the whole phrase, never per-note.",
+
+  "runner_contract": {
+    "modalities": ["ID", "SAY", "SING", "ECHO", "TAP", "NOTATE", "EXPLAIN", "REFLECT", "IMPROVISE", "DICTION"],
+    "aai_modes": {
+      "none": "No AssemblyAI call. Local DSP or UI-only scoring.",
+      "batch_stt": "Upload a finished short clip to the AssemblyAI batch endpoint. Use for one-word/short spoken answers.",
+      "streaming_stt": "Real-time streaming socket. Use when the learner needs live on-screen feedback while producing sound.",
+      "lemur": "LeMUR over the transcript. Use for EXPLAIN - scores conceptual understanding, not keywords.",
+      "sentiment": "Sentiment/confidence signal off the transcript. Use for REFLECT to route encouragement, never to gate progress."
+    },
+    "scoring_split": "Per asr_contract rule_5: local pitch DSP owns pitch and timing. AssemblyAI owns syllable/word SEQUENCE. Never cross the streams.",
+    "word_boost": "Every AAI request carries word_boost from the content pool with boost_param 'high'. Non-negotiable, free, and measured to help on degraded audio.",
+    "kindness_rules": {
+      "never_show_fail": true,
+      "on_miss": "Show the pet leaning toward the target. Never a red X, never the word 'wrong'.",
+      "retry_is_free": "Unlimited retries. Retries never reduce XP and never count against mastery.",
+      "range_clamp": "Every generated pitch is clamped to learner.range once L1.2.4 has stored it. Before that, use solfege.default_keys.comfortable_mid."
+    },
+    "mastery_bands_used_here": {
+      "unlock_next_unit": 3,
+      "recital_eligible": 4
+    },
+    "xp": {
+      "exercise_pass": 10,
+      "exercise_pass_first_try": 15,
+      "lesson_complete": 40,
+      "unit_complete": 100,
+      "recital_pass": 300
+    }
+  },
+
+  "levels": [
+    {
+      "level": 1,
+      "name": "First Sounds",
+      "goal": "From 'I don't think I can sing' to matching a pitch and keeping a beat.",
+      "unlocks_at": "start",
+      "units": [
+        {
+          "unit": "1.1",
+          "name": "Sound & Pitch",
+          "lessons": [
+            {
+              "id": "L1.1.1",
+              "title": "High and Low",
+              "concept": "concept.pitch_highlow",
+              "doors": {
+                "primary": "Pitch is how high or low a sound is. Fast vibrations sound high; slow vibrations sound low.",
+                "analogy": "A tiny bird and a big dog. Small and tight makes a high sound; big and loose makes a low one. Your voice does the same thing.",
+                "contrast": "High and low is not loud and soft. A whisper can be high; a shout can be low. Pitch is WHICH note. Volume is HOW MUCH."
+              },
+              "tutor_lines": [
+                "Okay. Before any of the fancy stuff - music is just high sounds and low sounds, arranged on purpose. Listen. That's high. That's low. That's honestly most of it. Everything else is decoration.",
+                "Two sounds. One's up here, one's down there. That gap is the whole art form. Ready?",
+                "You already know this one. You've known it since you were a baby. I'm just going to give it a name."
+              ],
+              "exercises": [
+                {"id": "L1.1.1-E1", "modality": "ID", "generator": "G-08", "params": {"tones": 2, "min_gap": "P5", "prompt": "Which one was higher?"}, "aai": "none", "pass": {"correct_of": 4, "need": 3}},
+                {"id": "L1.1.1-E2", "modality": "ID", "generator": "G-08", "params": {"tones": 2, "gap_ladder": ["P5", "M3", "M2"], "adaptive": true, "prompt": "Which one was higher?"}, "aai": "none", "pass": {"reach_gap": "M2", "correct_of": 3, "need": 2}},
+                {"id": "L1.1.1-E3", "modality": "SAY", "generator": "G-08", "params": {"prompt": "Say it out loud - higher, or lower?", "expected": ["higher", "lower"]}, "aai": "batch_stt", "asr": {"word_boost_extra": ["higher", "lower"], "whole_phrase": true}, "pass": {"correct_of": 4, "need": 3}},
+                {"id": "L1.1.1-E4", "modality": "SING", "generator": "G-10", "params": {"type": "siren", "direction": "low_to_high", "span_semitones": 7, "scored_on": "contour_monotonic"}, "aai": "streaming_stt", "asr": {"note": "Streaming is used here for liveness/onset only. Pitch contour is scored by local DSP.", "whole_phrase": true}, "pass": {"contour_rising_fraction": 0.7}},
+                {"id": "L1.1.1-E5", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "In your own words - what's the difference between a sound being HIGH and a sound being LOUD?", "frame": "compare_to_neighbour"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["separates pitch from amplitude", "gives an example", "no confusion of the two"], "pass_at": 3}}
+              ],
+              "errors": [
+                {"symptom": "answers track loudness instead of pitch", "route_to_door": "contrast", "then_rerun": "L1.1.1-E5"},
+                {"symptom": "correct only at wide gaps", "action": "hold gap at P5 for one more session; do not advance the ladder"}
+              ]
+            },
+            {
+              "id": "L1.1.2",
+              "title": "Loud and Soft",
+              "concept": "concept.dynamics",
+              "doors": {
+                "primary": "Dynamics means volume. Piano (p) is soft, forte (f) is loud. Crescendo grows, diminuendo shrinks.",
+                "analogy": "Talking across a pillow versus talking across a parking lot. Same words, different push.",
+                "contrast": "Getting louder does not mean getting higher. Singers who shove volume at a high note strain and hurt themselves. We keep these two ideas apart from day one."
+              },
+              "tutor_lines": [
+                "Loud and soft are how music breathes. And listen - louder is not higher. Push volume to hit a high note and you'll hurt yourself. We're not doing that.",
+                "Same note. Now barely there. Now filling the room. Nothing about the note changed - only the push."
+              ],
+              "exercises": [
+                {"id": "L1.1.2-E1", "modality": "ID", "generator": "G-08", "params": {"prompt": "Loud or soft?", "levels": ["p", "mf", "f"]}, "aai": "none", "pass": {"correct_of": 4, "need": 3}},
+                {"id": "L1.1.2-E2", "modality": "SING", "generator": "G-10", "params": {"type": "messa-di-voce", "shape": "soft-loud-soft", "duration_s": 6, "pitch": "learner.comfortable_mid", "scored_on": "amplitude_arc + pitch_stability"}, "aai": "none", "pass": {"pitch_drift_cents_max": 50, "amplitude_arc_matched": true}},
+                {"id": "L1.1.2-E3", "modality": "SAY", "generator": "G-08", "params": {"prompt": "Name the dynamic you just heard.", "expected": ["piano", "soft", "forte", "loud", "mezzo forte"]}, "aai": "batch_stt", "asr": {"word_boost_extra": ["piano", "forte", "mezzo", "crescendo", "diminuendo"], "whole_phrase": true}, "pass": {"correct_of": 3, "need": 2}},
+                {"id": "L1.1.2-E4", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "Why isn't loud the same thing as high?", "frame": "teach_a_beginner"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["names both dimensions", "gives a concrete example", "mentions the strain risk or independence"], "pass_at": 3}}
+              ],
+              "errors": [
+                {"symptom": "pitch rises as volume rises in E2", "route_to_door": "contrast", "then_rerun": "L1.1.2-E2", "coach_line": "Let the volume grow but leave the note exactly where it is. Think of it as opening a window, not climbing a ladder."}
+              ]
+            },
+            {
+              "id": "L1.1.3",
+              "title": "Long and Short",
+              "concept": "concept.duration",
+              "doors": {
+                "primary": "Duration is how long a sound lasts. That's it. Long sounds and short sounds.",
+                "analogy": "A dot and a dash. Morse code is nothing but duration, and people sent whole sentences with it.",
+                "contrast": "Duration is independent of pitch and volume. A short sound can be high, low, loud or soft. Three separate dials."
+              },
+              "tutor_lines": [
+                "Third dial. How LONG. High-low, loud-soft, long-short. Three dials and you've got music.",
+                "Hold this one until you run out of air. Seriously. I'll wait."
+              ],
+              "exercises": [
+                {"id": "L1.1.3-E1", "modality": "ID", "generator": "G-08", "params": {"prompt": "Long or short?"}, "aai": "none", "pass": {"correct_of": 4, "need": 3}},
+                {"id": "L1.1.3-E2", "modality": "TAP", "generator": "G-03", "params": {"rhythm_pool_ids": ["R-01", "R-02", "R-03"], "meter": "4/4", "bars": 1, "tempo_bpm": 76}, "aai": "none", "pass": {"onset_tolerance_ms": 180, "matched_fraction": 0.75}},
+                {"id": "L1.1.3-E3", "modality": "SING", "generator": "G-10", "params": {"type": "breath", "sustain_target_s": 4, "pitch": "learner.comfortable_mid", "ui": "breath_meter"}, "aai": "none", "pass": {"sustain_s_min": 3.0, "pitch_drift_cents_max": 60}}
+              ],
+              "errors": [
+                {"symptom": "taps through the long note", "route_to_door": "analogy", "coach_line": "A long note isn't two taps stuck together - it's one tap that keeps going."}
+              ]
+            },
+            {
+              "id": "L1.1.4",
+              "title": "Matching a Pitch",
+              "starred": true,
+              "note": "First real win. This is the lesson that decides whether the learner believes they can sing. Protect it.",
+              "concept": "concept.pitch_matching",
+              "doors": {
+                "primary": "Matching means producing the same pitch you hear.",
+                "analogy": "Tuning two radios to one station - you slide until the fuzz disappears.",
+                "contrast": "You are not copying the tone colour. Your voice will never sound like a piano and it isn't supposed to. Only the height has to match."
+              },
+              "tutor_lines": [
+                "Here's the deal. I'm going to sing a note. You sing it back. If you miss, that's not failing - that's information. Everyone slides around before they land. Let's go.",
+                "Close. And close is the whole game right now. Slide toward me - I'll tell you which way.",
+                "That. That was it. Do it again so your body remembers what it just did."
+              ],
+              "exercises": [
+                {"id": "L1.1.4-E1", "modality": "ECHO", "generator": "G-06", "params": {"notes": 1, "register": "learner.comfortable_mid", "tolerance_cents": 60, "ui": "live_needle"}, "aai": "streaming_stt", "asr": {"note": "Streaming provides onset/liveness. Pitch is DSP.", "whole_phrase": true}, "pass": {"within_cents": 60, "attempts_allowed": "unlimited"}},
+                {"id": "L1.1.4-E2", "modality": "ECHO", "generator": "G-06", "params": {"notes": 1, "tolerance_ladder_cents": [40, 25], "adaptive": true}, "aai": "streaming_stt", "pass": {"within_cents": 40, "of_attempts": 3, "need": 2}},
+                {"id": "L1.1.4-E3", "modality": "ECHO", "generator": "G-06", "params": {"notes": 1, "sweep": "across learner.range", "positions": 4, "tolerance_cents": 40}, "aai": "streaming_stt", "pass": {"positions_hit": 3}},
+                {"id": "L1.1.4-E4", "modality": "REFLECT", "generator": "G-11", "params": {"prompt": "How did that feel?", "gates_progress": false}, "aai": "sentiment", "use": "Route the pet's next line. Negative sentiment routes to encouragement + an easier register, never to a repeat of the same difficulty."}
+              ],
+              "errors": [
+                {"symptom": "consistently flat by more than 60 cents", "action": "drop the target pitch into a lower comfort zone and re-teach with the siren from L1.2.3", "never": "show a red fail"},
+                {"symptom": "consistently sharp", "action": "same treatment, one whole step lower target; sharpness at this stage is usually over-pushing air"},
+                {"symptom": "no stable pitch detected at all", "action": "route to L1.2.2 (The Hum) first - humming produces a cleaner fundamental than open-vowel singing"}
+              ]
+            }
+          ]
+        },
+        {
+          "unit": "1.2",
+          "name": "Finding Your Voice",
+          "lessons": [
+            {
+              "id": "L1.2.1",
+              "title": "Posture & Breath",
+              "concept": "concept.breath_support",
+              "doors": {
+                "primary": "Sing on a steady stream of air. The breath drops low - belly and ribs expand - then releases evenly.",
+                "analogy": "A balloon you let go of versus one you pinch and release slowly. Singing is the slow, controlled release.",
+                "contrast": "This is not 'take the biggest breath you can'. Over-filling locks the throat. Comfortably full, evenly released."
+              },
+              "tutor_lines": [
+                "Stand like you're about to be introduced to someone you like. Shoulders down, chest easy. Breathe in low - your belly moves, not your shoulders. Now hiss it out slow and steady, like a leaky tire. That's it. That's the engine."
+              ],
+              "exercises": [
+                {"id": "L1.2.1-E1", "modality": "TAP", "generator": "G-10", "params": {"type": "breath", "hiss_targets_s": [4, 8, 12], "ui": "breath_meter"}, "aai": "none", "pass": {"reach_s": 8}},
+                {"id": "L1.2.1-E2", "modality": "SING", "generator": "G-10", "params": {"type": "breath", "vowel": "hum", "sustain_target_s": 6}, "aai": "none", "pass": {"sustain_s_min": 5, "amplitude_variance_max": 0.25}},
+                {"id": "L1.2.1-E3", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "Where should you feel the breath when you sing?", "frame": "define"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["low/belly/ribs not shoulders", "steady release", "not maximum capacity"], "pass_at": 3}}
+              ],
+              "errors": [{"symptom": "shoulders visibly rise / audible gasp", "route_to_door": "contrast"}]
+            },
+            {
+              "id": "L1.2.2",
+              "title": "The Hum",
+              "concept": "concept.hum_resonance",
+              "doors": {
+                "primary": "Humming is closed-mouth resonance - the cheapest safe way to make tone.",
+                "analogy": "A cat purring. Buzzy, easy, no effort.",
+                "contrast": "Not a grunt from the throat. The buzz belongs at the lips and nose - if your lips aren't tickling, move it forward."
+              },
+              "tutor_lines": [
+                "Lips together, teeth apart, jaw loose. Now make the sound a fridge makes. Feel that buzz in your lips? That's free tone. No technique required.",
+                "If it tickles, you've got it."
+              ],
+              "exercises": [
+                {"id": "L1.2.2-E1", "modality": "SING", "generator": "G-10", "params": {"type": "5-note", "vowel": "hum", "notes": 1, "pitch": "learner.comfortable_mid", "sustain_s": 5}, "aai": "none", "pass": {"pitch_drift_cents_max": 40}},
+                {"id": "L1.2.2-E2", "modality": "SING", "generator": "G-06", "params": {"melody_pool_id": "M-L1-01", "vowel": "hum", "note": "Hummed, so no syllables to check - DSP only."}, "aai": "none", "pass": {"notes_within_cents": 50, "fraction": 0.6}},
+                {"id": "L1.2.2-E3", "modality": "DICTION", "generator": "G-10", "params": {"type": "diction", "target": "mmm", "scored_on": "steadiness + AAI word confidence"}, "aai": "batch_stt", "asr": {"whole_phrase": true, "note": "Use returned word confidence as a proxy for tone steadiness. Do not gate on transcript text - 'mmm' is not reliably transcribed."}, "pass": {"steadiness_only": true}}
+              ],
+              "errors": [{"symptom": "throaty/pressed tone", "route_to_door": "contrast", "coach_line": "Move it to your lips. If your throat is working, you've gone too far back."}]
+            },
+            {
+              "id": "L1.2.3",
+              "title": "Sirens",
+              "concept": "concept.siren_glide",
+              "doors": {
+                "primary": "A siren is a smooth glide from low to high and back, crossing registers without a break.",
+                "analogy": "An ambulance going past. One unbroken sweep.",
+                "contrast": "Not a series of separate notes. One ribbon, not a staircase. If you hear steps, slow down and smooth it out."
+              },
+              "tutor_lines": [
+                "This is the single most useful thing you can do for your voice and it costs nothing. Low to high, high to low, no gaps.",
+                "There's a spot in the middle where it wants to crack. Go slower right there. Don't avoid it - that's the spot that gets better."
+              ],
+              "exercises": [
+                {"id": "L1.2.3-E1", "modality": "SING", "generator": "G-10", "params": {"type": "siren", "span_semitones": 7, "direction": "up_down", "scored_on": "contour_smoothness"}, "aai": "none", "pass": {"discontinuities_max": 2}},
+                {"id": "L1.2.3-E2", "modality": "SING", "generator": "G-10", "params": {"type": "siren", "span_ladder_semitones": [9, 12, 15], "adaptive": true}, "aai": "none", "pass": {"reach_span_semitones": 12, "discontinuities_max": 3}}
+              ],
+              "errors": [{"symptom": "audible break at the register transition", "action": "narrow the span by 2 semitones and slow the glide; this is normal and improves with repetition, say so out loud"}]
+            },
+            {
+              "id": "L1.2.4",
+              "title": "Your Range",
+              "starred": true,
+              "note": "Personalization. This lesson WRITES learner.range, which clamps every generator in the game from here on. If it is skipped, everything downstream defaults to solfege.default_keys.comfortable_mid.",
+              "concept": "concept.vocal_range",
+              "doors": {
+                "primary": "Your range is your lowest to highest comfortable pitch.",
+                "analogy": "Your shoe size. Not better or worse than anyone else's. Just yours.",
+                "contrast": "Comfortable range is not your absolute extremes. We build outward from comfort, not inward from strain."
+              },
+              "tutor_lines": [
+                "This is the most useful thing we'll do today. I'm going to find where your voice actually lives, and from now on I'll never ask you to sing somewhere that hurts.",
+                "Stop when it stops being easy. Not when it stops being possible. Those are very different places."
+              ],
+              "exercises": [
+                {"id": "L1.2.4-E1", "modality": "SING", "generator": "G-10", "params": {"type": "5-note", "direction": "guided_descent", "step_semitones": 1, "stop_on": "learner_says_stop OR pitch_detection_fails"}, "aai": "none", "writes": "learner.range.low"},
+                {"id": "L1.2.4-E2", "modality": "SING", "generator": "G-10", "params": {"type": "5-note", "direction": "guided_ascent", "step_semitones": 1, "stop_on": "learner_says_stop OR strain_detected"}, "aai": "none", "writes": "learner.range.high"},
+                {"id": "L1.2.4-E3", "modality": "SAY", "generator": "G-11", "params": {"prompt": "Say STOP when it stops feeling easy.", "expected": ["stop", "that's it", "done"]}, "aai": "streaming_stt", "asr": {"word_boost_extra": ["stop"], "whole_phrase": true}, "note": "Hands-free range finding. This is a small, honest, demo-friendly use of streaming STT - the learner is singing, so they cannot click."}
+              ],
+              "writes_state": {"learner.range.low": "MIDI note number", "learner.range.high": "MIDI note number", "learner.range.comfortable_mid": "derived: midpoint, rounded to nearest scale degree"},
+              "errors": [{"symptom": "range narrower than 7 semitones", "action": "accept it and clamp to it; do not push. Re-measure after Level 2 - it will have widened."}]
+            }
+          ]
+        },
+        {
+          "unit": "1.3",
+          "name": "The Steady Beat",
+          "lessons": [
+            {
+              "id": "L1.3.1",
+              "title": "Feeling the Pulse",
+              "concept": "concept.beat",
+              "doors": {
+                "primary": "The beat is the steady heartbeat under the music. It doesn't speed up or slow down on its own.",
+                "analogy": "Footsteps while you walk. Even, automatic, you don't think about them.",
+                "contrast": "The beat is not the rhythm. Rhythm dances over the beat. The beat just keeps walking."
+              },
+              "tutor_lines": [
+                "Find the thing you'd nod your head to. That's it. That's the beat. You don't have to count it yet.",
+                "Now I'm going to cut the music. Keep tapping. Don't stop. I want to hear if the clock is inside you yet."
+              ],
+              "exercises": [
+                {"id": "L1.3.1-E1", "modality": "TAP", "generator": "G-03", "params": {"groove_pool": "varied", "tempo_bpm_range": [70, 110], "bars": 4, "never_reuse_clip": true}, "aai": "none", "pass": {"onset_tolerance_ms": 150, "matched_fraction": 0.7}},
+                {"id": "L1.3.1-E2", "modality": "TAP", "generator": "G-03", "params": {"audio_drops_out_after_bars": 2, "continue_bars": 2, "test": "internal_pulse"}, "aai": "none", "pass": {"drift_ms_per_beat_max": 60}},
+                {"id": "L1.3.1-E3", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "What's the difference between the beat and the rhythm?", "frame": "compare_to_neighbour"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["beat = steady underlying pulse", "rhythm = pattern on top", "gives an example"], "pass_at": 3}}
+              ],
+              "errors": [{"symptom": "taps the rhythm instead of the beat", "route_to_door": "contrast", "then_rerun": "L1.3.1-E1"}]
+            },
+            {
+              "id": "L1.3.2",
+              "title": "Tempo",
+              "concept": "concept.tempo",
+              "doors": {
+                "primary": "Tempo is the speed of the beat, measured in beats per minute. Largo, andante, moderato, allegro, presto - slowest to fastest.",
+                "analogy": "Strolling, walking, jogging, sprinting. Same legs, different speed.",
+                "contrast": "A faster tempo doesn't mean shorter notes. A whole note at 160 BPM is still a whole note - it just takes less clock time."
+              },
+              "tutor_lines": [
+                "Italian words for speed, because an Italian got there first. Largo is broad and slow. Presto is 'I'm late'.",
+                "Same tune, three speeds. Notice it's still the same tune."
+              ],
+              "exercises": [
+                {"id": "L1.3.2-E1", "modality": "ID", "generator": "G-03", "params": {"prompt": "Which was faster?", "bpm_pairs": "generated, gap adaptive from 40 to 10 BPM"}, "aai": "none", "pass": {"correct_of": 4, "need": 3}},
+                {"id": "L1.3.2-E2", "modality": "TAP", "generator": "G-03", "params": {"prompt": "Tap at {marking}", "markings": ["largo", "andante", "moderato", "allegro"], "no_click_track": true}, "aai": "none", "pass": {"bpm_within_pct": 20}},
+                {"id": "L1.3.2-E3", "modality": "SAY", "generator": "G-03", "params": {"prompt": "Name the tempo marking.", "expected": ["largo", "andante", "moderato", "allegro", "presto"]}, "aai": "batch_stt", "asr": {"word_boost_extra": ["largo", "andante", "moderato", "allegro", "presto"], "whole_phrase": true}, "pass": {"correct_of": 4, "need": 3}}
+              ],
+              "errors": [{"symptom": "assumes faster = shorter note values", "route_to_door": "contrast"}]
+            },
+            {
+              "id": "L1.3.3",
+              "title": "Strong & Weak Beats",
+              "concept": "concept.meter_accent",
+              "doors": {
+                "primary": "Beats group in patterns, and the first of each group feels strongest. That's the downbeat.",
+                "analogy": "ONE-two-three, ONE-two-three. A waltz leans on the first step, every time.",
+                "contrast": "Strong is not louder. It's weight. You feel a downbeat even in music that's whisper-quiet."
+              },
+              "tutor_lines": [
+                "Count with me. ONE two ONE two. Now ONE two three ONE two three. Feel how different those two rooms are?",
+                "Not louder. Heavier. There's a difference and your body already knows it."
+              ],
+              "exercises": [
+                {"id": "L1.3.3-E1", "modality": "TAP", "generator": "G-03", "params": {"accent_beat": 1, "groupings": [2, 3, 4], "bars": 4}, "aai": "none", "pass": {"accent_placement_correct_fraction": 0.75}},
+                {"id": "L1.3.3-E2", "modality": "ID", "generator": "G-03", "params": {"prompt": "Is this in 2s or 3s?", "rhythm_pool_ids": ["R-01", "R-06", "R-07"]}, "aai": "none", "pass": {"correct_of": 4, "need": 3}},
+                {"id": "L1.3.3-E3", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "What makes a downbeat feel strong, if it isn't just louder?", "frame": "why_it_matters"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["grouping/weight not volume", "names the first beat of a group", "example"], "pass_at": 3}}
+              ],
+              "errors": [{"symptom": "accents by hitting harder only", "route_to_door": "contrast"}]
+            }
+          ]
+        },
+        {
+          "unit": "1.4",
+          "name": "Echo Games",
+          "lessons": [
+            {
+              "id": "L1.4.1",
+              "title": "Two-Note Echoes",
+              "concept": "concept.echo_memory",
+              "doors": {
+                "primary": "Hold a short pattern in memory, then reproduce it.",
+                "analogy": "Repeating a phone number back to someone. You hear the whole thing, then you say the whole thing.",
+                "contrast": "This is not a race. Listen all the way to the end before you start. Starting early is the number one reason echoes fall apart."
+              },
+              "tutor_lines": [
+                "Two notes. That's all. Listen to both, then give them back to me.",
+                "Wait for me to finish. I know you want to jump in. Wait."
+              ],
+              "exercises": [
+                {"id": "L1.4.1-E1", "modality": "ECHO", "generator": "G-06", "params": {"notes": 2, "motion": "stepwise", "range_clamp": "learner.range", "fresh_every_time": true, "tolerance_cents": 50}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "note": "Hummed or on a neutral vowel at L1 - no syllables yet, so AAI is liveness/onset only. Solfege syllable checking starts at L2.4."}, "pass": {"notes_within_cents": 50, "fraction": 1.0, "of_attempts": 4, "need": 3}},
+                {"id": "L1.4.1-E2", "modality": "ECHO", "generator": "G-06", "params": {"notes": 2, "motion": ["stepwise", "small_leap"], "tolerance_cents": 40}, "aai": "streaming_stt", "pass": {"of_attempts": 4, "need": 3}}
+              ],
+              "errors": [{"symptom": "starts singing before the prompt finishes", "route_to_door": "contrast", "coach_line": "Whole thing first. Then you."}]
+            },
+            {
+              "id": "L1.4.2",
+              "title": "Three-Note Echoes",
+              "concept": "concept.echo_memory",
+              "reteach_of": "L1.4.1",
+              "doors": {
+                "primary": "Same skill, one more note. Memory span grows by using it.",
+                "analogy": "Carrying three grocery bags instead of two. You don't get stronger arms - you get better at arranging them.",
+                "contrast": "Don't grab the notes one at a time. Hear the SHAPE - up-up, down-up, up-down - and sing the shape."
+              },
+              "tutor_lines": [
+                "Three now. Don't memorize three separate notes - remember the shape they make.",
+                "Up then down. Did you hear it as a shape? Good. That's the trick, and it works forever."
+              ],
+              "exercises": [
+                {"id": "L1.4.2-E1", "modality": "ECHO", "generator": "G-06", "params": {"notes": 3, "motion": "stepwise", "fresh_every_time": true, "tolerance_cents": 50}, "aai": "streaming_stt", "pass": {"of_attempts": 4, "need": 3}},
+                {"id": "L1.4.2-E2", "modality": "SING", "generator": "G-06", "params": {"melody_pool_ids": ["M-L1-01", "M-L1-02"], "vowel": "neutral"}, "aai": "streaming_stt", "asr": {"whole_phrase": true}, "pass": {"notes_within_cents": 50, "fraction": 0.7}},
+                {"id": "L1.4.2-E3", "modality": "ID", "generator": "G-06", "params": {"prompt": "Which shape was that?", "options": ["up-up", "up-down", "down-up", "down-down"], "distractors": "generated near-misses"}, "aai": "none", "pass": {"correct_of": 4, "need": 3}}
+              ],
+              "errors": [{"symptom": "gets note 1 and 3 but loses the middle", "action": "reduce to 2 notes for one round, then return; do not label it a failure"}]
+            },
+            {
+              "id": "L1.4.3",
+              "title": "Steps and Leaps",
+              "concept": "concept.step_leap",
+              "doors": {
+                "primary": "A step moves to the neighbouring note. A leap skips at least one.",
+                "analogy": "Walking up stairs versus hopping over one.",
+                "contrast": "Direction is a separate question from distance. You can step down and you can leap down. Four combinations, not two."
+              },
+              "tutor_lines": [
+                "Step, step, step - boring on purpose. Now LEAP. Hear how that one had some air under it?",
+                "Most melodies are mostly steps with a few leaps for drama. That's the recipe."
+              ],
+              "exercises": [
+                {"id": "L1.4.3-E1", "modality": "ID", "generator": "G-06", "params": {"prompt": "Step or leap?", "include_descending": true}, "aai": "none", "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L1.4.3-E2", "modality": "SING", "generator": "G-06", "params": {"contour_given": true, "notes": 4, "mix": "2 steps 1 leap"}, "aai": "streaming_stt", "asr": {"whole_phrase": true}, "pass": {"notes_within_cents": 50, "fraction": 0.75}},
+                {"id": "L1.4.3-E3", "modality": "ECHO", "generator": "G-06", "params": {"notes": 4, "fresh_every_time": true, "melody_pool_ids": ["M-L1-03", "M-L1-04"]}, "aai": "streaming_stt", "pass": {"of_attempts": 4, "need": 3}},
+                {"id": "L1.4.3-E4", "modality": "NOTATE", "generator": "G-08", "params": {"task": "mark each move in the printed line as step or leap", "line_length": 6}, "aai": "none", "pass": {"correct_fraction": 0.8}}
+              ],
+              "errors": [{"symptom": "calls every descending move a leap", "route_to_door": "contrast", "then_rerun": "L1.4.3-E1"}]
+            }
+          ],
+          "recital": {
+            "id": "RECITAL-1",
+            "title": "Your First Song",
+            "unlocks_at_mastery_band": 4,
+            "task": "Sing a 3-note, 8-bar song with the pet. Pool-drawn - a different song for every learner and every retry.",
+            "melody_pool_ids": ["M-L1-01", "M-L1-02", "M-L1-03", "M-L1-04", "M-L1-05"],
+            "vowel": "neutral or hum - solfege syllables are not required until Recital 2",
+            "aai": "streaming_stt",
+            "asr": {"whole_phrase": true, "note": "One continuous blob for the whole 8 bars. asr_contract rule_1."},
+            "rubric": [
+              {"criterion": "pitch matching", "scale": 5, "measured_by": "DSP, fraction of notes within 50 cents"},
+              {"criterion": "steady beat", "scale": 5, "measured_by": "DSP onset drift"},
+              {"criterion": "breath", "scale": 5, "measured_by": "phrase completed without a mid-phrase gasp"},
+              {"criterion": "courage to finish", "scale": 5, "measured_by": "reached the final note. Award 5 for finishing at all."}
+            ],
+            "pass": {"all_criteria_min": 3},
+            "on_pass": {"xp": 300, "pet_event": "first_evolution", "tutor_line": "You just sang a song. Out loud. On purpose. Whatever you believed about yourself an hour ago is now out of date."},
+            "on_miss": {"never_say": ["failed", "try again"], "do": "The pet performs the song WITH the learner again, one notch slower. Retry is free and unlimited."}
+          }
+        }
+      ]
+    },
+
+    {
+      "level": 2,
+      "name": "The Language of Notation",
+      "goal": "Read what's on the page, and put a name on what you already hear.",
+      "unlocks_at": "RECITAL-1 passed",
+      "units": [
+        {
+          "unit": "2.1",
+          "name": "The Musical Alphabet",
+          "lessons": [
+            {
+              "id": "L2.1.1",
+              "title": "A to G",
+              "concept": "concept.musical_alphabet",
+              "doors": {
+                "primary": "Music uses seven letters - A B C D E F G - and then it loops back to A.",
+                "analogy": "Days of the week. After Sunday you're back to Monday, but it's a new week.",
+                "contrast": "There is no H. After G it's A again. Every note you will ever sing is one of seven letters."
+              },
+              "tutor_lines": [
+                "Seven letters. That's the entire alphabet of music. You learned twenty-six when you were four. You can handle seven.",
+                "Now backwards. G F E D C B A. Sounds silly, but reading music downward is half of reading music."
+              ],
+              "exercises": [
+                {"id": "L2.1.1-E1", "modality": "SAY", "generator": "G-08", "params": {"prompt": "What comes after {letter}?", "direction": "both", "generated": true}, "aai": "batch_stt", "asr": {"word_boost_extra": ["A", "B", "C", "D", "E", "F", "G"], "whole_phrase": true}, "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.1.1-E2", "modality": "NOTATE", "generator": "G-08", "params": {"task": "fill the missing letters in the loop", "blanks": 3}, "aai": "none", "pass": {"correct_fraction": 1.0}},
+                {"id": "L2.1.1-E3", "modality": "SAY", "generator": "G-08", "params": {"prompt": "Recite the alphabet backwards from G.", "expected_sequence": ["G", "F", "E", "D", "C", "B", "A"]}, "aai": "batch_stt", "asr": {"whole_phrase": true, "note": "One utterance, one upload. Do not chop per letter - measured 25% accuracy on chopped audio."}, "pass": {"sequence_correct": true}}
+              ],
+              "errors": [{"symptom": "continues to H", "route_to_door": "contrast"}]
+            },
+            {
+              "id": "L2.1.2",
+              "title": "The Keyboard",
+              "concept": "concept.keyboard_map",
+              "doors": {
+                "primary": "The black keys come in groups of two and three. C sits immediately to the left of any group of two.",
+                "analogy": "The black-key groups are landmarks - like knowing your street by the corner shop, not by counting doors.",
+                "contrast": "You don't need a keyboard to sing. It's our shared map, nothing more."
+              },
+              "tutor_lines": [
+                "Don't count from the left end. Find the group of two black keys and step left. That's C. Every time, every octave, every piano on earth.",
+                "Landmarks beat counting. Always."
+              ],
+              "exercises": [
+                {"id": "L2.1.2-E1", "modality": "ID", "generator": "G-08", "params": {"task": "click the named key", "random_letters": true, "random_octaves": true}, "aai": "none", "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.1.2-E2", "modality": "SAY", "generator": "G-08", "params": {"task": "name the highlighted key"}, "aai": "batch_stt", "asr": {"word_boost_extra": ["A", "B", "C", "D", "E", "F", "G", "sharp", "flat"], "whole_phrase": true}, "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.1.2-E3", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "Someone hands you a keyboard you've never seen. How do you find C?", "frame": "teach_a_beginner"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["uses the two-black-key landmark", "left of the group", "does not rely on counting from an end"], "pass_at": 3}}
+              ],
+              "errors": [{"symptom": "counts white keys from the left edge", "route_to_door": "analogy"}]
+            },
+            {
+              "id": "L2.1.3",
+              "title": "Octaves",
+              "concept": "concept.octave",
+              "doors": {
+                "primary": "Same letter, higher or lower. The frequency doubles.",
+                "analogy": "The same word said by a child and by an adult. Same word, different size.",
+                "contrast": "An octave is not a different note. It's the same note in a new register - which is exactly why a room full of people singing in different octaves still sounds like one melody."
+              },
+              "tutor_lines": [
+                "Two notes that are somehow the same note. That's the strangest true thing in music and everybody just accepts it.",
+                "Sing it with me. Low one, high one. Your voice knows where it is even if your brain doesn't yet."
+              ],
+              "exercises": [
+                {"id": "L2.1.3-E1", "modality": "ID", "generator": "G-01", "params": {"prompt": "Same note in a different octave, or a different note?", "distractors": "generated near-misses (M7, m9)"}, "aai": "none", "pass": {"correct_of": 5, "need": 4}},
+                {"id": "L2.1.3-E2", "modality": "SING", "generator": "G-01", "params": {"interval": "P8", "direction": "ascending", "root": "learner.range.low + 2", "guard": "skip if learner.range span < 12 semitones; substitute P5"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "note": "Octave is scored by DSP only. asr_contract rule D-D: an ASR cannot tell do from do-prime."}, "pass": {"within_cents": 50}},
+                {"id": "L2.1.3-E3", "modality": "ECHO", "generator": "G-01", "params": {"interval": "P8", "direction": "both", "anchor_song_id": "A-P8-up"}, "aai": "streaming_stt", "pass": {"of_attempts": 3, "need": 2}}
+              ],
+              "errors": [{"symptom": "sings the same pitch back instead of the octave", "action": "play the anchor A-P8-up (Pitch Pet original 'Pet Call'), then retry", "route_to_door": "analogy"}]
+            }
+          ]
+        },
+        {
+          "unit": "2.2",
+          "name": "The Staff & Treble Clef",
+          "lessons": [
+            {
+              "id": "L2.2.1",
+              "title": "The Staff",
+              "concept": "concept.staff",
+              "doors": {
+                "primary": "Five lines, four spaces. Higher on the staff means higher in pitch.",
+                "analogy": "A ladder where the rungs AND the gaps are both places to stand.",
+                "contrast": "Notes live on lines and in spaces. Both are real positions - a note in a space isn't 'between' two notes, it IS a note."
+              },
+              "tutor_lines": [
+                "Five lines. Four spaces. Nine places to put a note before you need anything extra.",
+                "Up is up. That's the one thing about notation that's exactly as obvious as it looks."
+              ],
+              "exercises": [
+                {"id": "L2.2.1-E1", "modality": "NOTATE", "generator": "G-08", "params": {"task": "place a note on line {n} / space {n}", "generated": true}, "aai": "none", "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.2.1-E2", "modality": "SAY", "generator": "G-08", "params": {"prompt": "Line or space?", "expected": ["line", "space"]}, "aai": "batch_stt", "asr": {"word_boost_extra": ["line", "space"], "whole_phrase": true}, "pass": {"correct_of": 5, "need": 4}},
+                {"id": "L2.2.1-E3", "modality": "ID", "generator": "G-08", "params": {"prompt": "Which note is higher?", "two_notes_on_staff": true}, "aai": "none", "pass": {"correct_of": 4, "need": 4}}
+              ],
+              "errors": [{"symptom": "counts lines from the top", "action": "state the convention once, plainly: lines are numbered from the bottom up, because pitch goes up"}]
+            },
+            {
+              "id": "L2.2.2",
+              "title": "Treble Clef",
+              "concept": "concept.treble_clef",
+              "doors": {
+                "primary": "The treble clef is a G clef. It curls around the second line and names it G. Lines from the bottom: E G B D F. Spaces: F A C E.",
+                "analogy": "The curl is a pointer. It is literally hugging the line it's naming.",
+                "contrast": "The mnemonic is not the rule. The CLEF defines the letters; 'Every Good Boy' is just a shortcut. Change the clef and the mnemonic is worthless - which is the whole point of L2.3.1."
+              },
+              "tutor_lines": [
+                "That fancy squiggle isn't decoration - it's a label. See how it curls around the second line? It's saying 'this one is G.' Everything else counts out from there.",
+                "If you ever forget everything else, find the curl. Find G. Count from there. That's a strategy, and strategies survive panic."
+              ],
+              "exercises": [
+                {"id": "L2.2.2-E1", "modality": "SAY", "generator": "G-08", "params": {"clef": "treble", "task": "name the note", "generated_order": true, "never_fixed_drill_order": true}, "aai": "batch_stt", "asr": {"word_boost_extra": ["A", "B", "C", "D", "E", "F", "G"], "whole_phrase": true}, "pass": {"correct_of": 8, "need": 7}},
+                {"id": "L2.2.2-E2", "modality": "NOTATE", "generator": "G-08", "params": {"clef": "treble", "task": "write the named note", "direction": "write"}, "aai": "none", "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.2.2-E3", "modality": "SING", "generator": "G-06", "params": {"clef": "treble", "melody_pool_ids": ["M-L1-03", "M-L1-04"], "task": "sing what you read", "syllables": "deferred until L2.4 unlocks"}, "aai": "streaming_stt", "asr": {"whole_phrase": true}, "pass": {"notes_within_cents": 50, "fraction": 0.7}}
+              ],
+              "errors": [{"symptom": "recites the mnemonic but can't name a note in isolation", "route_to_door": "contrast", "coach_line": "Don't run the whole sentence every time. Find G. Count."}]
+            },
+            {
+              "id": "L2.2.3",
+              "title": "Reading Treble Pitches",
+              "concept": "concept.treble_fluency",
+              "doors": {
+                "primary": "Fluency means naming a note without counting. It comes from repetition on fresh material, not from memorizing one drill sheet.",
+                "analogy": "Reading words versus sounding them out. You still CAN sound them out - you just stopped needing to.",
+                "contrast": "Speed is not the goal. A correct answer in three seconds beats a guess in one."
+              },
+              "tutor_lines": [
+                "Faster now. Not because speed matters - because slow reading eats your attention and you need that attention for singing.",
+                "Don't know it instantly? Fine. Find your landmark and count. That's not cheating, that's the method."
+              ],
+              "exercises": [
+                {"id": "L2.2.3-E1", "modality": "SAY", "generator": "G-08", "params": {"clef": "treble", "timed": true, "adaptive_speed": true, "start_ms": 5000, "floor_ms": 2000}, "aai": "batch_stt", "asr": {"whole_phrase": true}, "pass": {"correct_of": 10, "need": 8, "at_ms_max": 3000}},
+                {"id": "L2.2.3-E2", "modality": "SING", "generator": "G-06", "params": {"read_and_sing": true, "melody_pool_ids": ["M-L1-01", "M-L1-03", "M-L1-05"], "fresh_every_attempt": true}, "aai": "streaming_stt", "asr": {"whole_phrase": true}, "pass": {"notes_within_cents": 50, "fraction": 0.7}},
+                {"id": "L2.2.3-E3", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "How would you work out a note you don't recognise instantly?", "frame": "teach_a_beginner", "teaches": "strategy, not flashcards"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["names a landmark", "counts by step from it", "does not just recite a mnemonic"], "pass_at": 3}}
+              ],
+              "errors": [{"symptom": "accuracy falls as the timer tightens", "action": "loosen the timer by 1000ms and hold. Accuracy first, always."}]
+            }
+          ]
+        },
+        {
+          "unit": "2.3",
+          "name": "Bass Clef & Grand Staff",
+          "lessons": [
+            {
+              "id": "L2.3.1",
+              "title": "Bass Clef",
+              "concept": "concept.bass_clef",
+              "doors": {
+                "primary": "The bass clef is an F clef. Its two dots surround the fourth line, F. Lines from the bottom: G B D F A. Spaces: A C E G.",
+                "analogy": "The two dots are a pair of eyes staring at F.",
+                "contrast": "The same POSITION on the staff means a different letter than it did in treble. Position alone never tells you the note. Only the clef does."
+              },
+              "tutor_lines": [
+                "New clef, new letters, same five lines. This is where people who memorized positions instead of learning the rule fall over.",
+                "The dots are looking at F. That's your landmark down here."
+              ],
+              "exercises": [
+                {"id": "L2.3.1-E1", "modality": "SAY", "generator": "G-08", "params": {"clef": "bass", "task": "name the note"}, "aai": "batch_stt", "asr": {"word_boost_extra": ["A", "B", "C", "D", "E", "F", "G"], "whole_phrase": true}, "pass": {"correct_of": 8, "need": 7}},
+                {"id": "L2.3.1-E2", "modality": "NOTATE", "generator": "G-08", "params": {"clef": "bass", "direction": "write"}, "aai": "none", "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.3.1-E3", "starred": true, "modality": "SAY", "generator": "G-08", "params": {"task": "mixed-clef drill: identical visual position, clef alternates at random", "clefs": ["treble", "bass"], "purpose": "forces the rule, defeats position-memorization"}, "aai": "batch_stt", "asr": {"whole_phrase": true}, "pass": {"correct_of": 10, "need": 8}}
+              ],
+              "errors": [{"symptom": "gives the treble letter for a bass note", "route_to_door": "contrast", "then_rerun": "L2.3.1-E3", "coach_line": "Check the clef first. Every single time. It takes a quarter of a second and it's never wrong."}]
+            },
+            {
+              "id": "L2.3.2",
+              "title": "Middle C & the Grand Staff",
+              "concept": "concept.grand_staff",
+              "doors": {
+                "primary": "The grand staff joins treble and bass. Middle C sits on a ledger line between them - below the treble staff, above the bass staff. Same note, two ways to write it.",
+                "analogy": "Two floors of a house with C on the landing between them.",
+                "contrast": "Middle C isn't 'the middle of the piano' exactly. It's one specific C - C4 - and it's the note both clefs are counting from."
+              },
+              "tutor_lines": [
+                "One note, written two different ways, in the same instant. Both are correct. That's the hinge the whole grand staff swings on.",
+                "Find it in treble. Now find it in bass. Same key on the piano. Same note in your throat."
+              ],
+              "exercises": [
+                {"id": "L2.3.2-E1", "modality": "ID", "generator": "G-08", "params": {"task": "locate middle C", "clefs": ["treble", "bass"], "alternating": true}, "aai": "none", "pass": {"correct_of": 6, "need": 5}},
+                {"id": "L2.3.2-E2", "modality": "NOTATE", "generator": "G-08", "params": {"task": "write middle C in the given clef"}, "aai": "none", "pass": {"correct_of": 4, "need": 4}},
+                {"id": "L2.3.2-E3", "modality": "SING", "generator": "G-10", "params": {"pitch": "C4", "guard": "skip if C4 outside learner.range; transpose the exercise to the learner's nearest C and say so out loud"}, "aai": "none", "pass": {"within_cents": 50}}
+              ],
+              "errors": [{"symptom": "places middle C on the staff rather than on its ledger line", "route_to_door": "primary"}]
+            },
+            {
+              "id": "L2.3.3",
+              "title": "Ledger Lines",
+              "concept": "concept.ledger_lines",
+              "doors": {
+                "primary": "Ledger lines are short lines added above or below the staff for notes that run past it.",
+                "analogy": "Extra rungs bolted onto the ladder when you need to climb higher than it was built for.",
+                "contrast": "They don't change the letter pattern. The alphabet just keeps marching in the same direction it was already going."
+              },
+              "tutor_lines": [
+                "Ran out of staff? Add a line. That's the whole invention.",
+                "Count outward one line at a time. Three ledger lines is where most people stop and reach for a different clef instead - and that's a legitimate choice, not a failure."
+              ],
+              "exercises": [
+                {"id": "L2.3.3-E1", "modality": "SAY", "generator": "G-08", "params": {"task": "name the ledger note", "max_ledger_lines": 3, "clefs": ["treble", "bass"]}, "aai": "batch_stt", "asr": {"whole_phrase": true}, "pass": {"correct_of": 8, "need": 6}},
+                {"id": "L2.3.3-E2", "modality": "NOTATE", "generator": "G-08", "params": {"task": "write a note requiring {n} ledger lines", "n_range": [1, 3]}, "aai": "none", "pass": {"correct_of": 5, "need": 4}}
+              ],
+              "errors": [{"symptom": "loses the count past two ledger lines", "action": "accept 2 as mastery for Level 2; three-plus is re-tested in Level 5"}]
+            }
+          ]
+        },
+        {
+          "unit": "2.4",
+          "name": "Solfege",
+          "note": "THIS IS THE CONTEST UNIT. L2.4.1 onward is where AssemblyAI stops being a helper and becomes the scorer - it checks WHICH SYLLABLES were sung. Every SING/ECHO here is a whole-phrase upload per asr_contract rule_1. Demo the app from here.",
+          "lessons": [
+            {
+              "id": "L2.4.1",
+              "title": "Do Re Mi",
+              "starred": true,
+              "concept": "concept.solfege_movable",
+              "doors": {
+                "primary": "Solfege gives each scale degree a syllable: do re mi fa sol la ti do. In movable do, 'do' is always the home note of whatever key you're in.",
+                "analogy": "Nicknames for jobs on a team. Whoever is playing home base gets called 'do', whatever their real name is.",
+                "contrast": "Movable do is not fixed do. In fixed do, 'do' is always C. We use movable because it teaches what a note DOES - and function transfers to every key, while letter names don't."
+              },
+              "tutor_lines": [
+                "Letters tell you where a note lives. Solfege tells you what a note DOES. 'Ti' always wants to go home to 'do' - in every key, forever. That's why this is the good stuff.",
+                "Sing it as one line. Don't stop between syllables. I need to hear it as a sentence, not eight separate words.",
+                "Which one is home? You can hear it. Everybody can hear it. That's not a musician thing, that's a human thing."
+              ],
+              "exercises": [
+                {"id": "L2.4.1-E1", "modality": "SING", "generator": "G-02", "params": {"melody_pool_id": "M-L2-01", "syllables": ["do", "re", "mi", "fa", "sol", "la", "ti", "do"], "direction": "ascending", "key": "learner.range.comfortable_mid"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high", "normalise_with": "homophone_map", "hard_rule": "ONE blob. Never per-note. Never pad silence. Measured: continuous 100%, chopped 25%."}, "pass": {"syllable_sequence_accuracy": 0.75, "notes_within_cents": 50, "note_fraction": 0.6}},
+                {"id": "L2.4.1-E2", "modality": "SING", "generator": "G-02", "params": {"melody_pool_id": "M-L2-02", "direction": "descending"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high", "normalise_with": "homophone_map"}, "pass": {"syllable_sequence_accuracy": 0.75, "note_fraction": 0.6}},
+                {"id": "L2.4.1-E3", "starred": true, "modality": "ECHO", "generator": "G-06", "params": {"notes": 3, "syllables": true, "fresh_every_time": true, "range_clamp": "learner.range"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high", "normalise_with": "homophone_map"}, "pass": {"syllable_sequence_accuracy": 1.0, "of_attempts": 4, "need": 3}, "note": "Three syllables is below asr_contract rule_3 (min 4). MITIGATION: the pet sings a 'do' pickup with the learner so the uploaded blob is always 4+ syllables. The pickup is stripped from scoring, not from the upload."},
+                {"id": "L2.4.1-E4", "modality": "SAY", "generator": "G-11", "params": {"prompt": "Which syllable is home?", "expected": ["do"]}, "aai": "batch_stt", "asr": {"word_boost_extra": ["do", "doh", "dough"], "whole_phrase": true, "normalise_with": "homophone_map"}, "pass": {"correct": true}},
+                {"id": "L2.4.1-E5", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "Why would anyone use solfege instead of just the letter names?", "frame": "why_it_matters"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["function over letter name", "transfers across keys", "gives an example such as ti pulling to do"], "pass_at": 3}}
+              ],
+              "errors": [
+                {"symptom": "syllable accuracy below 50% but pitch is good", "diagnosis": "almost always diction or a chopped upload, NOT the learner's ear", "action": "verify the upload was one continuous blob before blaming the learner. Then coach consonants: 'land the M in mi, the F in fa'. Never reduce the pitch score for a diction miss."},
+                {"symptom": "sings the right pitches with the wrong syllables", "route_to_door": "primary", "action": "re-run E1 slower with the syllables on screen"},
+                {"symptom": "'sol' returns as 'soul' or 'so'", "action": "none - homophone_map already resolves this. Do not surface it to the learner."}
+              ]
+            },
+            {
+              "id": "L2.4.2",
+              "title": "Hand Signs",
+              "concept": "concept.curwen_signs",
+              "doors": {
+                "primary": "Curwen hand signs give each syllable a gesture, adding a physical memory channel to the audio one.",
+                "analogy": "Counting on your fingers. The body remembers what the head forgets.",
+                "contrast": "Signs are a learning aid, not notation. Nobody publishes music in hand signs."
+              },
+              "tutor_lines": [
+                "Your hands are about to become a second brain. Flat hand down low for do. Up and up as we climb.",
+                "Sign it while you sing it. Feels ridiculous. Works anyway."
+              ],
+              "exercises": [
+                {"id": "L2.4.2-E1", "modality": "ID", "generator": "G-08", "params": {"task": "match sign to syllable", "shown_by": "pet"}, "aai": "none", "pass": {"correct_of": 8, "need": 6}},
+                {"id": "L2.4.2-E2", "modality": "SING", "generator": "G-02", "params": {"melody_pool_id": "M-L2-03", "sign_while_singing": true, "camera": "optional - never required, never gates progress"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high"}, "pass": {"syllable_sequence_accuracy": 0.75}}
+              ],
+              "errors": [{"symptom": "signing disrupts singing", "action": "drop the signs for one round. They are an aid, not a requirement."}]
+            },
+            {
+              "id": "L2.4.3",
+              "title": "Sol, La & the Pentatonic",
+              "starred": true,
+              "note": "First creative act in the game. The improvisation exercise is scored on steadiness and confidence, NEVER on correctness - the pentatonic is chosen precisely so that nothing can be wrong.",
+              "concept": "concept.pentatonic",
+              "doors": {
+                "primary": "Add sol and la to do-re-mi and you have do-re-mi-sol-la: the major pentatonic. Five notes that sound good in any order.",
+                "analogy": "A box of crayons where no two colours clash. You genuinely cannot make an ugly combination.",
+                "contrast": "The pentatonic leaves out fa and ti - the two tension notes - which is exactly why nothing sounds wrong. The 'wrong notes' were removed from the box."
+              },
+              "tutor_lines": [
+                "Five notes. I've taken the two troublemakers out of the scale. Whatever you play now is going to sound fine. That's not encouragement, that's arithmetic.",
+                "Four bars. Make something up. There is no wrong answer available to you right now - I've checked.",
+                "Steady and committed beats clever and timid. Every time. Especially now."
+              ],
+              "exercises": [
+                {"id": "L2.4.3-E1", "modality": "SING", "generator": "G-02", "params": {"type": "pentatonic", "syllables": ["do", "re", "mi", "sol", "la"], "pattern": "generated, 5 notes"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high", "normalise_with": "homophone_map"}, "pass": {"syllable_sequence_accuracy": 0.75, "note_fraction": 0.6}},
+                {"id": "L2.4.3-E2", "starred": true, "modality": "IMPROVISE", "generator": "G-02", "params": {"type": "pentatonic", "bars": 4, "drone": "tonic", "tempo_bpm": 72, "scored_on": ["steadiness", "confidence"], "never_scored_on": ["correctness", "note choice"]}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "note": "Transcript is NOT compared to any target. It is used only to confirm the learner produced continuous voiced sound for the full four bars."}, "pass": {"voiced_fraction_of_4_bars": 0.6, "note": "That is the entire bar. Finishing four bars of made-up music is the achievement."}},
+                {"id": "L2.4.3-E3", "modality": "ECHO", "generator": "G-06", "params": {"notes": 5, "scale": "pentatonic", "syllables": true, "fresh_every_time": true}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high"}, "pass": {"syllable_sequence_accuracy": 0.8, "of_attempts": 4, "need": 3}}
+              ],
+              "errors": [
+                {"symptom": "stops improvising after one bar", "action": "the pet plays a call-and-response version: pet does bar 1 and 3, learner does 2 and 4. Halves the exposure, keeps the achievement."},
+                {"symptom": "apologises or self-criticises during E2", "route": "REFLECT with sentiment; the pet responds to the feeling before the music"}
+              ]
+            },
+            {
+              "id": "L2.4.4",
+              "title": "Singing From Notation",
+              "concept": "concept.sight_singing_intro",
+              "doors": {
+                "primary": "Sight-singing means reading a line you have never seen and singing it in solfege, in real time.",
+                "analogy": "Reading aloud from a book you just opened. You don't rehearse - you convert symbols to sound as you go.",
+                "contrast": "This is not memorization and it is not a memory test. If you've seen the melody before, it isn't sight-singing. That's why every attempt draws a fresh one."
+              },
+              "tutor_lines": [
+                "Fresh melody. You've never seen this one and neither has anyone else - I made it thirty seconds ago.",
+                "Look at the whole line first. Find do. Then start. Don't start before you've found do.",
+                "Ti wants to go home. Let it."
+              ],
+              "exercises": [
+                {"id": "L2.4.4-E1", "modality": "SING", "generator": "G-06", "params": {"read_and_sing": true, "scale": "pentatonic", "bars": 4, "fresh_every_attempt": true, "melody_pool_ids": ["M-L2-04", "M-L2-05"], "range_clamp": "learner.range"}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high", "normalise_with": "homophone_map"}, "pass": {"syllable_sequence_accuracy": 0.75, "notes_within_cents": 50, "note_fraction": 0.6}},
+                {"id": "L2.4.4-E2", "modality": "ECHO", "generator": "G-06", "params": {"notes": 6, "syllables": true, "fresh_every_time": true}, "aai": "streaming_stt", "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high"}, "pass": {"syllable_sequence_accuracy": 0.8, "of_attempts": 3, "need": 2}},
+                {"id": "L2.4.4-E3", "modality": "EXPLAIN", "generator": "G-11", "params": {"prompt": "What does 'ti' want to do, and why does that help you sing?", "frame": "define"}, "aai": "lemur", "rubric": {"scale": 5, "criteria": ["ti resolves up to do", "describes it as pull/tension", "connects it to predicting the next note"], "pass_at": 3}}
+              ],
+              "errors": [{"symptom": "starts on the wrong pitch but the intervals are correct", "action": "score the intervals as correct and say so explicitly. Starting pitch is a separate skill - give the tonic again and re-run."}]
+            }
+          ],
+          "recital": {
+            "id": "RECITAL-2",
+            "title": "Reading Aloud",
+            "starred": true,
+            "note": "This is the demo recital. It is the single best 20 seconds of the contest video: an unseen melody appears, the learner sings it in solfege, AssemblyAI reports which syllables actually came out, and the pet reacts. Record this one.",
+            "unlocks_at_mastery_band": 4,
+            "task": "Sight-sing an unseen 8-bar pentatonic melody from notation, in solfege, with the pet accompanying.",
+            "melody_pool_ids": ["M-L2-01", "M-L2-02", "M-L2-03", "M-L2-04", "M-L2-05"],
+            "generated_fresh": true,
+            "aai": "streaming_stt",
+            "asr": {"whole_phrase": true, "word_boost": true, "boost_param": "high", "normalise_with": "homophone_map", "hard_rule": "The entire 8 bars go up as ONE continuous blob. If the implementation ever chops this into segments, syllable accuracy collapses from ~100% to ~25%. Measured, not theorised."},
+            "rubric": [
+              {"criterion": "pitch accuracy", "scale": 5, "measured_by": "DSP, fraction of notes within tolerance_cents.good (30)"},
+              {"criterion": "syllable accuracy", "scale": 5, "measured_by": "AssemblyAI transcript, normalised through homophone_map, compared as an ordered sequence", "starred": true},
+              {"criterion": "rhythm", "scale": 5, "measured_by": "DSP onset alignment to the printed beats"},
+              {"criterion": "confidence", "scale": 5, "measured_by": "completed without stopping; volume did not collapse mid-phrase"}
+            ],
+            "pass": {"all_criteria_min": 3},
+            "on_pass": {"xp": 300, "pet_event": "second_evolution", "tutor_line": "You just read music you'd never seen and sang it out loud, in solfege, first try. Two weeks ago you told me you couldn't sing. I'm going to keep bringing that up."},
+            "on_miss": {"do": "The pet sings it with the learner in unison, then the learner alone. Retry free and unlimited.", "never_say": ["failed", "incorrect"]}
+          }
+        }
+      ]
+    }
+  ],
+
+  "open_items": [
+    "Levels 3-4 lesson data is D-04, not yet authored.",
+    "L2.4.1-E3 uses a 3-note echo, which is under asr_contract rule_3 (min 4). The pickup-note mitigation is authored above and must be implemented in the runner, not assumed.",
+    "All syllable_sequence_accuracy thresholds are set at 0.75-0.80 against a MEASURED synthetic-voice ceiling of 100%. If the human-voice verification clip comes back materially lower, these thresholds drop before anything else in the design changes - they are the intended shock absorber.",
+    "Hand-sign camera scoring (L2.4.2) is optional by design and is rung 3 on the scope-cut ladder. Cutting it costs nothing.",
+    "tutor_lines here are canonical. The engine paraphrases at runtime so wording varies between plays; do not treat these strings as fixed UI copy."
+  ]
+}
